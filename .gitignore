@@ -1,0 +1,38 @@
+# 의존성과 빌드 결과
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+
+# 테스트 결과 (Vitest, Playwright)
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+.playwright-mcp/
+
+# 재배포 조건이 불분명한 LUT (PRD 6.4)
+luts/private/
+
+# 로컬 환경 변수
+.env
+.env.*
+!.env.example
+
+# 개발 도구의 로컬 상태
+.omc/
+.claude/settings.local.json
+
+# 로그
+*.log
+npm-debug.log*
+
+# 편집기와 운영체제
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+docs/filmlook-studio.zip
