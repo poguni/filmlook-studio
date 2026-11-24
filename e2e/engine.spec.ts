@@ -64,7 +64,7 @@ test('V02를 적용하면 색이 바뀌고, 강도 0%면 원본과 채널별 ±1
   await page.getByRole('button', { name: 'V02 비비드 슬라이드 선택' }).click();
   await expect.poll(() => maxDiff(page)).toBeGreaterThan(10);
 
-  await page.getByRole('slider').fill('0');
+  await page.getByRole('slider', { name: '강도' }).fill('0');
   await expect.poll(() => maxDiff(page)).toBeLessThanOrEqual(1);
 });
 

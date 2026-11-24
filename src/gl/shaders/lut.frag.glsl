@@ -7,6 +7,8 @@ uniform sampler2D u_image;
 uniform sampler3D u_lut;
 uniform float u_lutSize;
 uniform float u_strength;
+// 비교 경계선 위치(0~1). 왼쪽은 원본, 오른쪽은 결과. 저장할 때는 항상 0
+uniform float u_compare;
 
 in vec2 v_uv;
 out vec4 outColor;
@@ -16,5 +18,6 @@ void main() {
   // 격자점 중심을 정확히 짚도록 반 텍셀 보정
   vec3 coord = src * ((u_lutSize - 1.0) / u_lutSize) + 0.5 / u_lutSize;
   vec3 graded = texture(u_lut, coord).rgb;
-  outColor = vec4(mix(src, graded, u_strength), 1.0);
+  vec3 result = mix(src, graded, u_strength);
+  outColor = vec4(v_uv.x < u_compare ? src : result, 1.0);
 }

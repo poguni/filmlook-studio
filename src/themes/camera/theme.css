@@ -1,0 +1,626 @@
+/* B 카메라 기어 테마의 배치와 장식 (design/DESIGN.md 3.2, 7.2) */
+[data-theme='camera'] body {
+  /* 가죽 질감: 5px 간격 점 무늬 */
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1.4px);
+  background-size: 5px 5px;
+}
+
+/* ── 헤더: 금속 상판 ── */
+[data-theme='camera'] .app-header {
+  gap: 22px;
+  padding: 16px 40px;
+  background: var(--plate-metal);
+  color: var(--plate-ink);
+  border-bottom: 4px solid var(--art-shade-1);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+.cam-brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.cam-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.cam-logo-sub {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--plate-muted);
+}
+
+.cam-model {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.cam-counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cam-counter-dial {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--art-shade-1);
+  border: 3px solid var(--art-cap);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--color-highlight);
+}
+
+.cam-counter-label {
+  width: 80px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  line-height: 1.4;
+  color: var(--plate-muted);
+}
+
+[data-theme='camera'] .app-actions {
+  gap: 16px;
+}
+
+[data-theme='camera'] .btn-open {
+  padding: 0 20px;
+  border-radius: 22px;
+  border: 1px solid #6d6b65;
+  background: linear-gradient(180deg, #fafaf7, #d5d3cc);
+  color: var(--plate-ink);
+  font-size: 15px;
+  font-weight: 500;
+  box-shadow: 0 2px 0 var(--art-cap);
+}
+
+[data-theme='camera'] .btn-save-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--plate-ink);
+  min-width: 2.5em;
+  text-align: right;
+}
+
+/* 셔터 버튼 = 저장 */
+[data-theme='camera'] .btn-save-shutter {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 5px solid var(--color-accent);
+  background: var(--metal-button);
+  box-shadow:
+    0 4px 0 #5a5852,
+    0 0 0 2px var(--plate-ink);
+  transition: transform 0.1s;
+}
+
+[data-theme='camera'] .btn-save:active:not(:disabled) .btn-save-shutter {
+  transform: translateY(3px);
+}
+
+[data-theme='camera'] .app-save-info {
+  display: none;
+}
+
+[data-theme='camera'] .app-notices {
+  display: grid;
+  gap: 8px;
+  padding: 16px 40px 0;
+}
+
+/* ── 본문 배치: 데스크톱 3열 + 아래 전체 폭 필름 스트립 ── */
+[data-theme='camera'] .app-body {
+  /* 헤더·뷰파인더 테두리·LCD·필름 스트립을 뺀 높이 안에 사진이 들어가게 함 */
+  --b-chrome: 520px;
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr) minmax(300px, 340px);
+  grid-template-areas:
+    'aside preview controls'
+    'sheet sheet sheet';
+  align-items: start;
+  column-gap: 30px;
+  row-gap: 26px;
+  padding: 28px 40px 24px;
+}
+
+[data-theme='camera'] .app-aside {
+  grid-area: aside;
+}
+
+[data-theme='camera'] .preview {
+  grid-area: preview;
+  width: 100%;
+  max-width: calc((100dvh - var(--b-chrome)) * 1.5 + 60px);
+  min-width: min(100%, 420px);
+  justify-self: center;
+}
+
+[data-theme='camera'] .controls {
+  grid-area: controls;
+}
+
+[data-theme='camera'] .sheet {
+  grid-area: sheet;
+  margin: 0 -40px 0 0;
+}
+
+/* ── 왼쪽 열 ── */
+.cam-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.cam-illust {
+  width: 100%;
+  height: auto;
+}
+
+.cam-illust-text {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--art-knob);
+}
+
+.cam-card {
+  margin: 0;
+  padding: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+}
+
+.cam-loaded {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.cam-loaded-text {
+  min-width: 0;
+}
+
+.cam-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--color-muted);
+}
+
+.cam-loaded-code {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-highlight);
+}
+
+.cam-loaded-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cam-loaded-sub {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.cam-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 14px;
+  font-size: 14px;
+}
+
+.cam-summary dt {
+  color: var(--color-muted);
+}
+
+.cam-summary dd {
+  margin: 0;
+  text-align: right;
+}
+
+.cam-mono {
+  font-family: var(--font-mono);
+}
+
+/* ── 뷰파인더 ── */
+[data-theme='camera'] .preview-frame {
+  padding: 30px;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-l);
+  box-shadow:
+    inset 0 0 0 2px #333,
+    inset 0 0 40px rgba(0, 0, 0, 0.9),
+    var(--shadow-card);
+}
+
+[data-theme='camera'] .preview-photo {
+  border-radius: var(--radius-s);
+}
+
+.cam-brightlines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.cam-brightlines path {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 이중상 합치 영역 (장식) */
+.cam-patch {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 76px;
+  height: 50px;
+  margin: -25px 0 0 -38px;
+  border: 1px solid rgba(255, 190, 120, 0.8);
+  background: rgba(255, 140, 40, 0.12);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+[data-theme='camera'] .preview-fit {
+  --handle-half: 25px;
+}
+
+.cam-handle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--metal-button);
+  border: 3px solid var(--color-accent);
+}
+
+.cam-handle path {
+  fill: none;
+  stroke: var(--plate-ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cam-lcd {
+  margin-top: 16px;
+  padding: 10px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  background: var(--lcd-bg);
+  color: var(--lcd-ink);
+  border-radius: var(--radius-s);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  font-family: var(--font-mono);
+  font-size: 14px;
+}
+
+/* ── 조절판 ── */
+[data-theme='camera'] .control-card {
+  padding: 18px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-m);
+}
+
+[data-theme='camera'] .control-head label {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+[data-theme='camera'] .control-value {
+  font-size: 18px;
+}
+
+.cam-aperture {
+  margin: 12px 0 6px;
+}
+
+.cam-aperture-ring {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: repeating-conic-gradient(#2e2e2e 0 4deg, #1a1a1a 4deg 8deg);
+  box-shadow:
+    0 0 0 4px var(--art-lens-ring),
+    0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.cam-aperture-well {
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--art-shade-1);
+  overflow: hidden;
+}
+
+.cam-aperture-well svg {
+  width: 96px;
+  height: 96px;
+}
+
+.cam-aperture-blades {
+  transform-origin: 50px 50px;
+  transition: transform 0.2s;
+}
+
+.cam-fstops {
+  display: flex;
+  justify-content: space-between;
+  order: 2;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-muted);
+}
+
+/* ── 필름 스트립 ── */
+[data-theme='camera'] .sheet {
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.cam-canister {
+  flex: none;
+}
+
+.cam-canister-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--art-canister);
+}
+
+[data-theme='camera'] .sheet-frames {
+  flex: 1;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(120px, 150px);
+  gap: 12px;
+  padding: 26px 16px 24px;
+  /* 위아래 퍼포레이션 구멍 */
+  background-color: var(--film-base);
+  background-image:
+    linear-gradient(90deg, transparent 0 6px, var(--color-bg) 6px 14px, transparent 14px 20px),
+    linear-gradient(90deg, transparent 0 6px, var(--color-bg) 6px 14px, transparent 14px 20px);
+  background-size: 20px 9px;
+  background-repeat: repeat-x;
+  background-position:
+    0 6px,
+    0 calc(100% - 6px);
+  border-radius: 0 4px 4px 0;
+}
+
+[data-theme='camera'] .frame {
+  color: var(--film-ink);
+}
+
+[data-theme='camera'] .frame-name {
+  color: #fff;
+}
+
+.cam-loaded-tag {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+
+.frame[aria-pressed='true'] .cam-loaded-tag {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── 태블릿: 미리보기·조절판 2열, 밀착 인화는 아래 가로 줄 ── */
+@media (max-width: 1199px) {
+  [data-theme='camera'] .app-body {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+    grid-template-areas:
+      'preview controls'
+      'sheet sheet';
+    padding: 24px;
+  }
+
+  [data-theme='camera'] .app-aside {
+    display: none;
+  }
+
+  [data-theme='camera'] .preview {
+    max-width: none;
+  }
+
+  [data-theme='camera'] .sheet {
+    margin: 0 -24px;
+  }
+}
+
+/* ── 스마트폰: 1열, 저장 줄은 화면 아래 고정 ── */
+@media (max-width: 767px) {
+  [data-theme='camera'] .app {
+    padding-bottom: 104px;
+  }
+
+  [data-theme='camera'] .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    flex-wrap: nowrap;
+    padding: 10px 16px;
+    border-bottom-width: 3px;
+  }
+
+  .cam-knob,
+  .cam-counter-label,
+  .cam-model {
+    display: none;
+  }
+
+  .cam-logo {
+    font-size: 19px;
+  }
+
+  .cam-logo-sub {
+    font-size: 12px;
+  }
+
+  .cam-counter-dial {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  [data-theme='camera'] .app-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    justify-content: space-between;
+    padding: 12px 20px 16px;
+    background: linear-gradient(180deg, #d5d3cc, #a9a7a0);
+    border-top: 3px solid var(--art-shade-1);
+  }
+
+  [data-theme='camera'] .btn-open {
+    font-size: 14px;
+  }
+
+  [data-theme='camera'] .btn-save-shutter {
+    width: 64px;
+    height: 64px;
+  }
+
+  [data-theme='camera'] .app-save-info {
+    display: block;
+    width: 92px;
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: right;
+    color: var(--plate-ink);
+  }
+
+  [data-theme='camera'] .app-notices {
+    padding: 12px 16px 0;
+  }
+
+  [data-theme='camera'] .app-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'preview'
+      'sheet'
+      'controls';
+    row-gap: 16px;
+    padding: 14px 16px 12px;
+  }
+
+  [data-theme='camera'] .preview {
+    min-width: 0;
+  }
+
+  [data-theme='camera'] .preview-frame {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  [data-theme='camera'] .preview-fit {
+    --handle-half: 19px;
+  }
+
+  [data-theme='camera'] .cam-handle {
+    width: 34px;
+    height: 34px;
+    border-width: 2px;
+  }
+
+  [data-theme='camera'] .compare-handle {
+    bottom: 10px;
+  }
+
+  [data-theme='camera'] .cam-lcd {
+    margin-top: 10px;
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+
+  .cam-lcd-hint {
+    display: none;
+  }
+
+  [data-theme='camera'] .sheet {
+    margin: 0 -16px;
+    scrollbar-width: none;
+  }
+
+  [data-theme='camera'] .sheet::-webkit-scrollbar {
+    display: none;
+  }
+
+  [data-theme='camera'] .cam-canister {
+    display: none;
+  }
+
+  [data-theme='camera'] .sheet-frames {
+    grid-auto-columns: 92px;
+    gap: 10px;
+    padding: 22px 16px 18px;
+    border-radius: 0;
+  }
+
+  .cam-aperture-ring {
+    width: 96px;
+    height: 96px;
+  }
+
+  .cam-aperture-well {
+    width: 72px;
+    height: 72px;
+  }
+
+  .cam-aperture-well svg {
+    width: 62px;
+    height: 62px;
+  }
+
+  .cam-fstops {
+    display: none;
+  }
+}

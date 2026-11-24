@@ -2,8 +2,8 @@
 
 | 항목 | 내용 |
 |---|---|
-| 문서 버전 | v1.2 (2026-11-25) |
-| 변경 내용 | v1.2: M1에서 쓰는 문구 키(`drop.hint`, `frame.label`, `error.*`, `icc.adobeRgb`) 추가. v1.1: PRD v1.4 반영. 기본값과 사용자 LUT 칸(`U01`), B 테마 높이 제한, 두 단계 공유, 단축키 포커스 규칙, C 테마 `--color-highlight` 대비 수정, 파일 경로 정정 |
+| 문서 버전 | v1.3 (2026-11-25) |
+| 변경 내용 | v1.3: M2 구현 반영. B 테마 일러스트 토큰, 문구 키(`strength.name`, `compare.label`, `sheet.label`, `error.save`) 추가, M3 전까지 `save.info` 임시 문구. v1.2: M1에서 쓰는 문구 키(`drop.hint`, `frame.label`, `error.*`, `icc.adobeRgb`) 추가. v1.1: PRD v1.4 반영. 기본값과 사용자 LUT 칸(`U01`), B 테마 높이 제한, 두 단계 공유, 단축키 포커스 규칙, C 테마 `--color-highlight` 대비 수정, 파일 경로 정정 |
 | 기준 시안 | `design/mockups/색감사진관-시안A-darkroom.html`, `색감사진관-시안B-camera.html`, `색감사진관-시안C-pastel.html` |
 | 관련 문서 | `docs/FilmLook Studio PRD.md` v1.4 (기능 요구 사항), `CLAUDE.md` (개발 규칙) |
 
@@ -130,7 +130,7 @@
 | `--shadow-card` | 안쪽 그림자 `inset 0 0 60px rgba(0,0,0,.6)` | 같음 | `0 14px 40px rgba(0,0,0,.6)` | 단색 오프셋 `5px 5px 0 #4a3550` |
 | `--border-width` | 1px | 1px | 1px | 2.5px |
 
-B 테마 전용 추가 토큰: `--plate-metal: linear-gradient(180deg,#ecebe6,#c9c7c0 55%,#a9a7a0)`, `--lcd-bg: #c5d1ad`, `--lcd-ink: #1b2612`, `--film-base: #3a2a1a`, `--film-ink: #f3d9b8`.
+B 테마 전용 추가 토큰: `--plate-metal: linear-gradient(180deg,#ecebe6,#c9c7c0 55%,#a9a7a0)`, `--plate-ink: #1d1d1d`, `--plate-muted: #333333`(금속 상판 위 보조 글자), `--metal-button`(셔터·비교 손잡이의 금속 단추 그라데이션), `--lcd-bg: #c5d1ad`, `--lcd-ink: #1b2612`, `--film-base: #3a2a1a`, `--film-ink: #f3d9b8`. 일러스트 전용 `--art-*` 토큰(카메라 몸체, 렌즈, 필름 통 등)은 `src/themes/camera/tokens.css`에 있으며 글자에는 쓰지 않습니다.
 C 테마 전용 추가 토큰: 카드 색 `--pastel-mint: #c6efdf`, `--pastel-butter: #ffeaa0`, `--pastel-lavender: #ded3ff`, `--pastel-pink: #ffc8d8`, `--pastel-sky: #cfe7ff`.
 
 ### 4.4 확인한 대비 값 (WCAG)
@@ -190,9 +190,15 @@ C 테마 전용 추가 토큰: 카드 색 `--pastel-mint: #c6efdf`, `--pastel-bu
 | `error.decode` | 사진을 여는 중 문제가 생겼습니다. 다른 사진으로 다시 시도해 주세요. | (A와 같음) | 사진을 여는 중 문제가 생겼어요. 다른 사진으로 다시 해 볼까요? |
 | `error.noWebgl2` | 이 브라우저는 WebGL2를 지원하지 않아 사용할 수 없습니다. 최신 Chrome이나 Edge에서 열어 주세요. | (A와 같음) | (A와 같음) |
 | `icc.adobeRgb` | Adobe RGB 사진입니다. sRGB로 변환해 편집합니다. | (A와 같음) | Adobe RGB 사진이에요. sRGB로 바꿔서 편집해요. |
+| `error.save` | 인화하는 중 문제가 생겼습니다. 다시 시도해 주세요. | 저장하는 중 문제가 생겼습니다. 다시 시도해 주세요. | 사진을 뽑는 중 문제가 생겼어요. 다시 해 볼까요? |
+| `strength.name` | 강도 | 강도 | 강도 |
+| `compare.label` | 원본과 결과 비교 위치 | (A와 같음) | (A와 같음) |
+| `sheet.label` | 밀착 인화 | 밀착 인화 필름 스트립 | 밀착 인화 스티커 |
 
 - `frame.label`의 `{name}`에는 원본 칸이면 “원본”, 프리셋 칸이면 “V02 비비드 슬라이드”처럼 코드와 이름이 들어갑니다(6.1).
 - 오류·안내 문구는 테마 말투보다 뜻이 정확히 전달되는 것을 우선합니다.
+- `strength.name`은 강도 슬라이더의 접근 이름입니다. 화면에 보이는 `strength`(“강도 · APERTURE”)와 달리 테마 장식 없이 기본 이름만 씁니다.
+- **`save.info` 임시 문구:** EXIF·GPS 보존(PRD S-03, M3) 전까지 B 테마는 사실과 다른 안내를 피하려고 “JPEG 92% · 원본 해상도”로 표시합니다. M3에서 EXIF 보존을 넣을 때 위 표의 문구로 바꿉니다.
 
 - 프리셋 이름(데일리, 비비드 슬라이드 …)과 코드는 테마와 무관하게 같습니다. 스마트폰의 좁은 칸에서는 C 테마만 짧은 이름(비비드, 소프트, 시네마, 모노)을 씁니다.
 - 영어 보조 표기(EXPOSURE TIMER 등)는 장식이므로 `aria-hidden`이 아니라 일반 텍스트로 두되, 화면 읽기 프로그램용 이름은 한국어 기본 이름(강도, 입자)으로 지정합니다.

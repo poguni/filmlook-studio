@@ -1,0 +1,26 @@
+{
+  "code": "C04",
+  "name": "다큐 크롬",
+  "subtitle": "Classic Chrome에서 영감",
+  "toneCurve": [
+    [0, 0],
+    [0.25, 0.21],
+    [0.5, 0.49],
+    [0.75, 0.77],
+    [1, 0.98]
+  ],
+  "contrast": 10,
+  "saturation": -20,
+  "hsl": {
+    "red": { "hue": 0, "sat": -15, "lum": 0 },
+    "green": { "hue": -8, "sat": -10, "lum": 0 },
+    "magenta": { "hue": 0, "sat": -15, "lum": 0 }
+  },
+  "whiteBalance": { "temp": 0, "tint": 0 },
+  "splitTone": {
+    "shadows": { "hue": 210, "sat": 14 },
+    "highlights": { "hue": 0, "sat": 0 }
+  },
+  "mono": null,
+  "defaultGrain": 0
+}

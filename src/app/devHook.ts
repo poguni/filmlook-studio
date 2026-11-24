@@ -5,6 +5,8 @@ export interface DevHook {
   photoName: string | null;
   readRender: () => Pixels | null;
   readSource: () => Pixels | null;
+  /** 미리보기 비트맵을 저장과 같은 타일 경로로 그린 결과 (타일 이음매 검사용) */
+  renderTiled: (tileSize: number) => Promise<Pixels | null>;
 }
 
 declare global {
@@ -13,12 +15,12 @@ declare global {
   }
 }
 
-export function bitmapPixels(bitmap: ImageBitmap): Pixels {
-  const c = new OffscreenCanvas(bitmap.width, bitmap.height);
+export function canvasPixels(source: ImageBitmap | OffscreenCanvas): Pixels {
+  const c = new OffscreenCanvas(source.width, source.height);
   const ctx = c.getContext('2d');
   if (!ctx) throw new Error('2D 캔버스를 만들 수 없습니다');
-  ctx.drawImage(bitmap, 0, 0);
-  const img = ctx.getImageData(0, 0, bitmap.width, bitmap.height);
+  ctx.drawImage(source, 0, 0);
+  const img = ctx.getImageData(0, 0, source.width, source.height);
   return { width: img.width, height: img.height, data: new Uint8Array(img.data.buffer) };
 }
 

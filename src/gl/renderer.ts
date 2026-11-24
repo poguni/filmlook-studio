@@ -27,11 +27,13 @@ export class Renderer {
   private readonly lutTex: WebGLTexture;
   private readonly uStrength: WebGLUniformLocation | null;
   private readonly uLutSize: WebGLUniformLocation | null;
+  private readonly uCompare: WebGLUniformLocation | null;
   private strength = 0;
+  private compare = 0;
   private hasImage = false;
 
-  /** WebGL2를 쓸 수 없으면 null */
-  static create(canvas: HTMLCanvasElement): Renderer | null {
+  /** WebGL2를 쓸 수 없으면 null. 썸네일·저장용으로 OffscreenCanvas도 받음 */
+  static create(canvas: HTMLCanvasElement | OffscreenCanvas): Renderer | null {
     const gl = canvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
@@ -55,6 +57,7 @@ export class Renderer {
     gl.uniform1i(gl.getUniformLocation(program, 'u_lut'), 1);
     this.uStrength = gl.getUniformLocation(program, 'u_strength');
     this.uLutSize = gl.getUniformLocation(program, 'u_lutSize');
+    this.uCompare = gl.getUniformLocation(program, 'u_compare');
 
     this.imageTex = this.createTexture(gl.TEXTURE_2D, 0);
     this.lutTex = this.createTexture(gl.TEXTURE_3D, 1);
@@ -107,20 +110,23 @@ export class Renderer {
     gl.uniform1f(this.uLutSize, lut.size);
   }
 
-  render(strength: number): void {
+  /** strength·compare는 0~1 */
+  render(strength: number, compare = 0): void {
     if (!this.hasImage) return;
     const gl = this.gl;
     this.strength = strength;
+    this.compare = compare;
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.useProgram(this.program);
     gl.uniform1f(this.uStrength, strength);
+    gl.uniform1f(this.uCompare, compare);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
   /** 마지막 설정으로 다시 그린 뒤 픽셀을 읽음 (화면 표시 후 버퍼가 비워지므로) */
   readPixels(): Pixels {
     const gl = this.gl;
-    this.render(this.strength);
+    this.render(this.strength, this.compare);
     const w = gl.drawingBufferWidth;
     const h = gl.drawingBufferHeight;
     const raw = new Uint8Array(w * h * 4);

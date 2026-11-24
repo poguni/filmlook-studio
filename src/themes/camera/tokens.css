@@ -1,4 +1,4 @@
-/* B 카메라 기어 테마 토큰 (design/DESIGN.md 4.3). 글꼴 파일은 M2에서 @fontsource로 추가 */
+/* B 카메라 기어 테마 토큰 (design/DESIGN.md 4.3) */
 :root[data-theme='camera'] {
   --color-bg: #1b1b1b;
   --color-surface: #252525;
@@ -21,8 +21,31 @@
   --border-width: 1px;
 
   --plate-metal: linear-gradient(180deg, #ecebe6, #c9c7c0 55%, #a9a7a0);
+  --plate-ink: #1d1d1d;
+  --plate-muted: #333333;
+  --metal-button: radial-gradient(circle at 35% 30%, #ffffff, #b9b7b0 60%, #8d8b85);
   --lcd-bg: #c5d1ad;
   --lcd-ink: #1b2612;
   --film-base: #3a2a1a;
   --film-ink: #f3d9b8;
+
+  /* 일러스트 전용 (art/) */
+  --art-body: #2b2b2b;
+  --art-plate: #cfcdc6;
+  --art-plate-dark: #b6b4ad;
+  --art-window: #3d5568;
+  --art-lens-ring: #bdbbb4;
+  --art-lens: #1a1a1a;
+  --art-lens-deep: #12202c;
+  --art-lens-glass: #1e3a52;
+  --art-knob: #2a2a2a;
+  --art-knob-ring: #3a3a3a;
+  --art-canister: #ffcf33;
+  --art-cap: #8d8b85;
+  --art-shade-1: #0c0c0c;
+  --art-shade-2: #222222;
+  --art-shade-3: #444444;
+  --art-shade-4: #555555;
+  --art-shade-blade: #2c2c2c;
+  --art-shine: #ffffff;
 }
