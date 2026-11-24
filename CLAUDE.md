@@ -62,7 +62,11 @@ filmlook-studio/
 | `npm run build` | 타입 검사 + 배포용 빌드 |
 | `npm run test` | Vitest 단위 테스트 |
 | `npm run e2e -- --trace off` | Playwright 스모크 테스트 |
-| `npm run lint` | ESLint + Prettier 검사 |
+| `npm run lint` | ESLint + Prettier 검사 (형식만 틀리면 `npx prettier --write .`로 정리) |
+
+- 처음 받은 뒤에는 `npm install`과 `npx playwright install chromium`을 한 번 실행합니다.
+- e2e는 개발 서버(5174 포트)에서만 열리는 검사용 창구 `window.__filmlook`(`src/app/devHook.ts`)으로 렌더 결과를 픽셀 단위로 비교합니다. 배포 빌드에는 들어가지 않습니다.
+- 테스트용 JPEG는 `e2e/fixtures.ts`가 즉석에서 만듭니다. 사진 파일을 테스트용으로 커밋하지 않습니다.
 
 ## 꼭 지킬 규칙
 

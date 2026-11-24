@@ -1,0 +1,28 @@
+/* B 카메라 기어 테마 토큰 (design/DESIGN.md 4.3). 글꼴 파일은 M2에서 @fontsource로 추가 */
+:root[data-theme='camera'] {
+  --color-bg: #1b1b1b;
+  --color-surface: #252525;
+  --color-surface-2: #070707;
+  --color-line: #3a3a3a;
+  --color-ink: #eeeeea;
+  --color-muted: #b8b8b2;
+  --color-accent: #ff7a1a;
+  --color-on-accent: #1d1d1d;
+  --color-highlight: #ff8a33;
+  --color-glow: transparent;
+  --color-preview-mat: #000000;
+  --font-display: 'Space Grotesk', 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --radius-s: 6px;
+  --radius-m: 14px;
+  --radius-l: 28px;
+  --shadow-card: 0 14px 40px rgba(0, 0, 0, 0.6);
+  --border-width: 1px;
+
+  --plate-metal: linear-gradient(180deg, #ecebe6, #c9c7c0 55%, #a9a7a0);
+  --lcd-bg: #c5d1ad;
+  --lcd-ink: #1b2612;
+  --film-base: #3a2a1a;
+  --film-ink: #f3d9b8;
+}

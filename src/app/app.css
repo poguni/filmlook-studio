@@ -1,0 +1,161 @@
+/* M1 임시 배치. 의미 토큰만 사용 (design/DESIGN.md 4.1) */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: var(--border-width) solid var(--color-line);
+}
+
+.app-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.btn {
+  min-height: 44px;
+  padding: 0 18px;
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-s);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.app-error {
+  margin: 12px 24px 0;
+  padding: 10px 14px;
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-s);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  /* 줄 높이만큼 늘어나지 않게 해서 미리보기가 3:2를 지킴 */
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 24px;
+  padding: 24px;
+}
+
+.preview {
+  flex: 999 1 600px;
+  min-width: 0;
+  aspect-ratio: 3 / 2;
+  display: grid;
+  place-items: center;
+  background: var(--color-preview-mat);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+/* 캔버스 원래 크기가 상자 크기에 끼어들지 않도록 상자를 꽉 채우고 contain으로 맞춤 */
+.preview-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.preview-hint {
+  color: var(--color-muted);
+  padding: 24px;
+  text-align: center;
+}
+
+.controls {
+  flex: 1 1 300px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.frames {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.frame {
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 12px;
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* 색만으로 구분하지 않도록 선택 칸은 테두리 굵기도 바꿈 */
+.frame[aria-pressed='true'] {
+  border: 3px solid var(--color-accent);
+  padding: 6px 10px;
+}
+
+.frame-code {
+  font-family: var(--font-mono);
+  color: var(--color-highlight);
+  font-size: 12px;
+}
+
+.slider {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slider input {
+  height: 30px;
+  accent-color: var(--color-accent);
+}
+
+.slider output {
+  font-family: var(--font-mono);
+  color: var(--color-highlight);
+}
+
+.photo-info {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}

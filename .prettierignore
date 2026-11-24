@@ -1,0 +1,9 @@
+# 문서와 시안은 손으로 정리한 형식을 유지
+docs/
+design/
+*.md
+package-lock.json
+dist/
+coverage/
+playwright-report/
+test-results/
