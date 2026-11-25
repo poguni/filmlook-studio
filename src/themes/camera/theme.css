@@ -75,6 +75,48 @@
   gap: 16px;
 }
 
+[data-theme='camera'] .app-tools {
+  gap: 22px;
+}
+
+[data-theme='camera'] .btn-gimmick,
+[data-theme='camera'] .btn-info {
+  color: var(--plate-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* 기믹 레버 스위치 (시안 B) */
+.cam-lever {
+  position: relative;
+  width: 52px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--art-knob);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.cam-lever-knob {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--metal-button);
+  transition: transform 0.3s;
+}
+
+.cam-lever.is-on .cam-lever-knob {
+  transform: translateX(28px);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+[data-theme='camera'] .btn-info {
+  border: 1px solid #6d6b65;
+  background: linear-gradient(180deg, #fafaf7, #d5d3cc);
+}
+
 [data-theme='camera'] .btn-open {
   padding: 0 20px;
   border-radius: 22px;
@@ -268,6 +310,49 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* 기믹: 3분할 격자선. 저장 결과에는 들어가지 않는 화면 장식 */
+.cam-brightlines .cam-grid {
+  stroke: rgba(255, 255, 255, 0.45);
+  stroke-width: 1;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+[data-gimmick='on'] .cam-brightlines .cam-grid {
+  opacity: 1;
+}
+
+/* 등장 효과 focus: 사진을 열 때마다 이름을 번갈아 바꿔 다시 틂 (design/DESIGN.md 8장) */
+[data-theme='camera'] .preview-fit[data-reveal='0'] {
+  animation: cam-focus-a 1.6s ease-out both;
+}
+
+[data-theme='camera'] .preview-fit[data-reveal='1'] {
+  animation: cam-focus-b 1.6s ease-out both;
+}
+
+@keyframes cam-focus-a {
+  from {
+    filter: blur(8px);
+    transform: scale(1.03);
+  }
+  to {
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes cam-focus-b {
+  from {
+    filter: blur(8px);
+    transform: scale(1.03);
+  }
+  to {
+    filter: none;
+    transform: none;
+  }
+}
+
 /* 이중상 합치 영역 (장식) */
 .cam-patch {
   position: absolute;
@@ -454,6 +539,9 @@
   display: flex;
   align-items: center;
   overflow-x: auto;
+  /* 칸이 넘치면(사용자 LUT 등) 가로로 넘겨 봄. 스크롤 막대는 필름 색으로 얇게 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--film-base) transparent;
 }
 
 .cam-canister {
@@ -493,6 +581,16 @@
 
 [data-theme='camera'] .frame-name {
   color: #fff;
+}
+
+[data-theme='camera'] .sheet-add {
+  color: var(--film-ink);
+  border-color: var(--film-ink);
+  opacity: 0.85;
+}
+
+[data-theme='camera'] .frame-remove {
+  color: var(--color-ink);
 }
 
 .cam-loaded-tag {
@@ -557,12 +655,19 @@
 
   .cam-knob,
   .cam-counter-label,
-  .cam-model {
+  .cam-model,
+  .btn-gimmick-text {
     display: none;
   }
 
+  [data-theme='camera'] .app-tools {
+    gap: 6px;
+  }
+
+  /* 기믹 레버·정보 버튼이 들어가도 한 줄에 들어가게 */
   .cam-logo {
-    font-size: 19px;
+    font-size: 17px;
+    white-space: nowrap;
   }
 
   .cam-logo-sub {

@@ -8,6 +8,7 @@ import {
   GlassSwatch,
   KnobHandle,
   LcdCaption,
+  LeverSwitch,
   LoadedMark,
   ViewfinderOverlay,
 } from './art';
@@ -28,4 +29,5 @@ export const camera: ThemeKit = {
   SheetLead: FilmCanister,
   FrameMark: LoadedMark,
   MonoSwatch: GlassSwatch,
+  GimmickArt: LeverSwitch,
 };

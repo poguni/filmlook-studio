@@ -1,5 +1,7 @@
 // 한 화면 편집기: 밀착 인화 + 미리보기 + 조절판 (PRD 3장). 테마는 ThemeKit으로만 바뀜
-import { useCallback, useEffect, useRef, useState, type DragEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
+import { CubeError, parseCube } from '../color/cube';
+import type { Lut } from '../color/lut';
 import { grainSettings } from '../gl/grain';
 import { renderThumbnails } from '../gl/offscreen';
 import { Renderer } from '../gl/renderer';
@@ -14,10 +16,18 @@ import {
   openJpeg,
   type OpenedPhoto,
 } from '../io/open';
+import { fetchSample, listSamples } from '../io/samples';
 import { download, encodeJpeg, outputName, outputSize } from '../io/save';
+import { canShareFiles, shareFile } from '../io/share';
 import { ORIGINAL, PRESETS, findPreset, frameNo } from '../presets';
 import { lutFor } from '../presets/luts';
-import { DEFAULT_EDIT, type EditState, type MonoChoice, type PresetCode } from '../state/edit';
+import {
+  DEFAULT_EDIT,
+  USER_LUT,
+  type EditState,
+  type MonoChoice,
+  type PresetCode,
+} from '../state/edit';
 import { fill } from '../themes/copy';
 import { camera } from '../themes/camera';
 import { ThemeContext, type PresetView } from '../themes/kit';
@@ -25,6 +35,7 @@ import { ContactSheet } from './ContactSheet';
 import { ControlPanel } from './ControlPanel';
 import { canvasPixels, installDevHook } from './devHook';
 import { Header } from './Header';
+import { InfoDialog } from './InfoDialog';
 import { COMPARE_STEP, Preview } from './Preview';
 import './app.css';
 
@@ -32,12 +43,17 @@ import './app.css';
 const kit = camera;
 const { copy } = kit;
 
-const FRAMES: PresetView[] = [ORIGINAL, ...PRESETS].map((p) => ({
+const BASE_FRAMES: PresetView[] = [ORIGINAL, ...PRESETS].map((p) => ({
   code: p.code,
   no: frameNo(p.code),
   name: p.name,
   subtitle: p.subtitle,
 }));
+
+interface UserLut {
+  name: string;
+  lut: Lut;
+}
 
 const clamp100 = (n: number) => Math.min(100, Math.max(0, n));
 const longSide = (w: number, h: number) => Math.max(w, h);
@@ -47,27 +63,62 @@ function effectiveMono(edit: EditState): MonoChoice {
   return findPreset(edit.preset)?.params.mono ? edit.mono : 'none';
 }
 
+/** 사용자 LUT는 5.4 단계를 거치지 않고 .cube 값을 그대로 씀 (PRD 5.4) */
+function lutOf(code: string, mono: MonoChoice, user: UserLut | null): Lut | null {
+  return code === USER_LUT ? (user?.lut ?? null) : lutFor(code, mono);
+}
+
 export function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
   const [webgl2, setWebgl2] = useState(true);
   const [photo, setPhoto] = useState<OpenedPhoto | null>(null);
+  const [photoKey, setPhotoKey] = useState(0);
   const [edit, setEdit] = useState<EditState>(DEFAULT_EDIT);
+  const [userLut, setUserLut] = useState<UserLut | null>(null);
   const [thumbs, setThumbs] = useState<Map<string, ImageBitmap>>(new Map());
   const [saving, setSaving] = useState<number | null>(null);
+  // 저장이 끝나 공유를 기다리는 파일과, 그때의 사진·편집 값 (PRD S-04 두 단계 공유)
+  const [pending, setPending] = useState<{
+    file: File;
+    photo: OpenedPhoto;
+    edit: EditState;
+    userLut: UserLut | null;
+  } | null>(null);
+  const [holding, setHolding] = useState(false);
+  const [gimmick, setGimmick] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [samples, setSamples] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  // 개발 서버 전용: 저장 시간·크기 (실기기 상한 측정용, PRD 6.3)
+  // 개발 서버 전용: 저장 시간·크기 (PRD 6.3)
   const [devSaveStat, setDevSaveStat] = useState<string | null>(null);
   const [limitMp] = useState(saveLimitMp);
 
-  const current = FRAMES.find((f) => f.code === edit.preset) ?? FRAMES[0];
+  const frames = useMemo<PresetView[]>(
+    () =>
+      userLut
+        ? [
+            ...BASE_FRAMES,
+            { code: USER_LUT, no: '09', name: userLut.name, subtitle: copy['userLut.subtitle'] },
+          ]
+        : BASE_FRAMES,
+    [userLut],
+  );
+  // 편집 값이나 사진이 바뀌면 공유 대기는 무효가 되고 저장 버튼으로 돌아감 (design/DESIGN.md 6.5)
+  const shareReady =
+    pending && pending.photo === photo && pending.edit === edit && pending.userLut === userLut
+      ? pending.file
+      : null;
+  const current = frames.find((f) => f.code === edit.preset) ?? frames[0];
   const mono = effectiveMono(edit);
   // 회전해도 화소 수는 같으므로 헤더의 크기로 저장 크기를 미리 판단
   const target = photo ? outputSize(photo.info.width, photo.info.height, limitMp) : null;
-  const saveInfo = target?.downscaled
-    ? fill(copy['save.downscaled'], { mp: limitMp ?? 0 })
-    : copy['save.info'];
+  const saveInfo = shareReady
+    ? copy['share.hint']
+    : target?.downscaled
+      ? fill(copy['save.downscaled'], { mp: limitMp ?? 0 })
+      : copy['save.info'];
 
   useEffect(() => {
     if (!canvasRef.current || rendererRef.current) return;
@@ -77,19 +128,29 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    void listSamples().then(setSamples);
+  }, []);
+
+  // 기믹은 토큰을 덮어써서 표현 (design/DESIGN.md 4.1)
+  useEffect(() => {
+    document.documentElement.dataset.gimmick = gimmick ? 'on' : 'off';
+  }, [gimmick]);
+
+  useEffect(() => {
     if (photo) rendererRef.current?.setImage(photo.preview);
   }, [photo]);
 
   useEffect(() => {
     const r = rendererRef.current;
     if (!r || !photo) return;
-    const lut = lutFor(edit.preset, effectiveMono(edit));
+    const lut = lutOf(edit.preset, effectiveMono(edit), userLut);
     if (lut) r.setLut(lut);
     const { info, preview } = photo;
     r.render({
       // 원본 칸은 LUT 없이 강도 0으로 그려 원본과 정확히 같게 함
       strength: lut ? edit.strength / 100 : 0,
-      compare: edit.compare / 100,
+      // 원본 보기 중에는 경계선을 오른쪽 끝으로 보내 사진 전체를 원본으로 (PRD E-04)
+      compare: holding ? 1 : edit.compare / 100,
       grain: grainSettings(
         edit.grain,
         edit.grainSize,
@@ -98,9 +159,9 @@ export function App() {
         longSide(preview.width, preview.height),
       ),
     });
-  }, [photo, edit]);
+  }, [photo, edit, userLut, holding]);
 
-  // 썸네일은 사진을 바꿨을 때만 다시 만듦 (design/DESIGN.md 6.1)
+  // 썸네일은 사진이나 사용자 LUT를 바꿨을 때만 다시 만듦 (design/DESIGN.md 6.1)
   useEffect(() => {
     if (!photo) return;
     let cancelled = false;
@@ -109,7 +170,7 @@ export function App() {
       const small = (await downscale(photo.preview, THUMB_MAX_SIDE)) ?? photo.preview;
       const map = renderThumbnails(
         small,
-        FRAMES.map((f) => ({ code: f.code, lut: lutFor(f.code) })),
+        frames.map((f) => ({ code: f.code, lut: lutOf(f.code, 'none', userLut) })),
       );
       if (small !== photo.preview) small.close();
       if (cancelled) {
@@ -123,7 +184,7 @@ export function App() {
       cancelled = true;
       made?.forEach((b) => b.close());
     };
-  }, [photo]);
+  }, [photo, frames, userLut]);
 
   useEffect(() => {
     installDevHook({
@@ -134,7 +195,7 @@ export function App() {
         if (!photo) return null;
         const { info, preview } = photo;
         const out = await renderTiled(preview, {
-          lut: lutFor(edit.preset, effectiveMono(edit)),
+          lut: lutOf(edit.preset, effectiveMono(edit), userLut),
           strength: edit.strength / 100,
           grain: grainSettings(
             edit.grain,
@@ -148,7 +209,7 @@ export function App() {
         return canvasPixels(out);
       },
     });
-  }, [photo, edit]);
+  }, [photo, edit, userLut]);
 
   const open = useCallback(async (file: File | undefined) => {
     if (!file) return;
@@ -159,12 +220,44 @@ export function App() {
         prev?.preview.close();
         return next;
       });
+      setPhotoKey((k) => k + 1);
       // 사진을 새로 열면 비교 위치는 0으로 (PRD E-01)
       setEdit((s) => ({ ...s, compare: 0 }));
     } catch (e) {
       setError(e instanceof NotJpegError ? copy['error.notJpeg'] : copy['error.decode']);
     }
   }, []);
+
+  // 프리셋을 고르면 입자 양은 그 프리셋의 기본값으로 바뀜 (PRD E-05)
+  const selectPreset = useCallback(
+    (code: string) =>
+      setEdit((s) => ({
+        ...s,
+        preset: code as PresetCode,
+        grain: findPreset(code)?.defaultGrain ?? 0,
+      })),
+    [],
+  );
+
+  const addLut = useCallback(
+    async (file: File) => {
+      setError(null);
+      try {
+        const lut = parseCube(await file.text());
+        setUserLut({ name: file.name.replace(/\.[^.]*$/, '') || file.name, lut });
+        selectPreset(USER_LUT);
+      } catch (e) {
+        if (!(e instanceof CubeError)) console.error(e);
+        setError(copy['error.cube']);
+      }
+    },
+    [selectPreset],
+  );
+
+  const removeLut = () => {
+    setUserLut(null);
+    setEdit((s) => (s.preset === USER_LUT ? { ...s, preset: 'ORIG', grain: 0 } : s));
+  };
 
   const save = useCallback(async () => {
     if (!photo || saving !== null) return;
@@ -187,7 +280,7 @@ export function App() {
         full = small;
       }
       const out = await renderTiled(full, {
-        lut: lutFor(edit.preset, effectiveMono(edit)),
+        lut: lutOf(edit.preset, effectiveMono(edit), userLut),
         strength: edit.strength / 100,
         grain: grainSettings(
           edit.grain,
@@ -202,7 +295,11 @@ export function App() {
       full.close();
       setSaving(95);
       const blob = await encodeJpeg(out, source);
-      download(blob, outputName(photo.name, edit.preset));
+      const name = outputName(photo.name, edit.preset);
+      // 공유 시트는 방금 누른 동작에서만 열리므로, 스마트폰은 한 번 더 누르게 함 (PRD S-04)
+      if (canShareFiles())
+        setPending({ file: new File([blob], name, { type: 'image/jpeg' }), photo, edit, userLut });
+      else download(blob, name);
       if (import.meta.env.DEV) {
         const sec = ((performance.now() - started) / 1000).toFixed(1);
         setDevSaveStat(`[개발] 저장 ${sec}초 · ${out.width}×${out.height}`);
@@ -212,29 +309,43 @@ export function App() {
     } finally {
       setSaving(null);
     }
-  }, [photo, edit, saving, limitMp]);
+  }, [photo, edit, saving, limitMp, userLut]);
 
-  // 프리셋을 고르면 입자 양은 그 프리셋의 기본값으로 바뀜 (PRD E-05)
-  const selectPreset = (code: string) =>
-    setEdit((s) => ({
-      ...s,
-      preset: code as PresetCode,
-      grain: findPreset(code)?.defaultGrain ?? 0,
-    }));
+  const share = useCallback(async () => {
+    if (!shareReady) return;
+    try {
+      await shareFile(shareReady);
+    } catch {
+      // 공유를 못 하면 내려받기로 대신함
+      download(shareReady, shareReady.name);
+    } finally {
+      setPending(null);
+    }
+  }, [shareReady]);
+
+  const saveOrShare = useCallback(
+    () => void (shareReady ? share() : save()),
+    [shareReady, share, save],
+  );
 
   // 단축키 (PRD 8.1). 입력 요소에 포커스가 있으면 그 요소가 키를 먼저 씀
   useEffect(() => {
+    const ownsKeys = (e: KeyboardEvent) =>
+      (e.target as HTMLElement).closest('input, textarea, select, dialog, [role="menu"]');
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
-        void save();
+        saveOrShare();
         return;
       }
-      if (saving !== null || e.ctrlKey || e.metaKey || e.altKey) return;
-      if ((e.target as HTMLElement).closest('input, textarea, select, [role="menu"]')) return;
+      if (saving !== null || e.ctrlKey || e.metaKey || e.altKey || ownsKeys(e)) return;
       if (/^[1-9]$/.test(e.key)) {
-        const frame = FRAMES[Number(e.key) - 1];
+        const frame = frames[Number(e.key) - 1];
         if (frame) selectPreset(frame.code);
+        return;
+      }
+      if (e.key === '\\' && photo) {
+        setHolding(true);
         return;
       }
       if (photo && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
@@ -243,9 +354,16 @@ export function App() {
         setEdit((s) => ({ ...s, compare: clamp100(s.compare + dir * COMPARE_STEP) }));
       }
     };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === '\\') setHolding(false);
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [save, saving, photo]);
+    window.addEventListener('keyup', onKeyUp);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('keyup', onKeyUp);
+    };
+  }, [saveOrShare, saving, photo, frames, selectPreset]);
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
@@ -265,8 +383,12 @@ export function App() {
           canOpen={webgl2 && saving === null}
           canSave={photo !== null && saving === null}
           saving={saving}
+          shareReady={shareReady !== null}
+          gimmick={gimmick}
+          onGimmick={() => setGimmick((g) => !g)}
+          onInfo={() => setInfoOpen(true)}
           onOpen={() => inputRef.current?.click()}
-          onSave={() => void save()}
+          onSave={saveOrShare}
         />
         <input
           ref={inputRef}
@@ -300,6 +422,12 @@ export function App() {
             aspect={aspect}
             compare={edit.compare}
             onCompare={(compare) => setEdit((s) => ({ ...s, compare }))}
+            onHold={setHolding}
+            photoKey={photoKey}
+            samples={samples}
+            onSample={(name) =>
+              void fetchSample(name).then(open, () => setError(copy['error.decode']))
+            }
             {...art}
           />
           <ControlPanel
@@ -314,12 +442,15 @@ export function App() {
             onMono={(m) => setEdit((s) => ({ ...s, mono: m }))}
           />
           <ContactSheet
-            frames={FRAMES}
+            frames={frames}
             selected={edit.preset}
             thumbs={thumbs}
             onSelect={selectPreset}
+            onAddLut={(file) => void addLut(file)}
+            onRemoveLut={removeLut}
           />
         </div>
+        <InfoDialog open={infoOpen} onClose={() => setInfoOpen(false)} />
       </div>
     </ThemeContext.Provider>
   );

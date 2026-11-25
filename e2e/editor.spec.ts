@@ -59,6 +59,13 @@ test('밀착 인화: 칸마다 썸네일이 그려지고 숫자 키로 고름 (P
     'aria-pressed',
     'true',
   );
+  // 선택 표시(B 테마 LOADED)는 고른 칸 하나에만 보임 (design/DESIGN.md 7.2)
+  await expect(page.locator(".frame[aria-pressed='true'] .cam-loaded-tag")).toHaveCSS(
+    'opacity',
+    '1',
+  );
+  for (const tag of await page.locator(".frame[aria-pressed='false'] .cam-loaded-tag").all())
+    await expect(tag).toHaveCSS('opacity', '0');
 });
 
 test('타일 렌더링 결과가 미리보기와 같아 이음매가 없음 (PRD 6.3)', async ({ page }) => {

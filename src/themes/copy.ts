@@ -37,6 +37,32 @@ export interface Copy {
   'error.save': string;
   'error.noWebgl2': string;
   'icc.adobeRgb': string;
+  /** 두 단계 공유 (PRD S-04) */
+  share: string;
+  'share.hint': string;
+  /** 기믹 토글의 접근 이름과 켜짐·꺼짐 표시 (PRD O-04) */
+  'gimmick.label': string;
+  'gimmick.on': string;
+  'gimmick.off': string;
+  /** 누르고 있는 동안 원본 보기 (PRD E-04) */
+  'original.hold': string;
+  /** 사용자 LUT (PRD P-05) */
+  'userLut.add': string;
+  'userLut.remove': string;
+  'userLut.subtitle': string;
+  'error.cube': string;
+  /** 샘플 사진 (PRD F-06). {n}에 번호 */
+  'samples.title': string;
+  'samples.item': string;
+  /** 앱 정보 화면 (PRD 5.1, 부록 B) */
+  'info.open': string;
+  'info.title': string;
+  'info.disclaimer': string;
+  'info.privacy': string;
+  'info.approx': string;
+  'info.hdr': string;
+  'info.fonts': string;
+  'info.close': string;
 }
 
 export function fill(template: string, values: Record<string, string | number>): string {

@@ -33,6 +33,27 @@ export const copy: Copy = {
   'error.noWebgl2':
     '이 브라우저는 WebGL2를 지원하지 않아 사용할 수 없습니다. 최신 Chrome이나 Edge에서 열어 주세요.',
   'icc.adobeRgb': 'Adobe RGB 사진입니다. sRGB로 변환해 편집합니다.',
+  share: '공유 · SHARE',
+  'share.hint': '저장 완료 · 공유를 눌러 보내기',
+  'gimmick.label': '뷰파인더 격자선',
+  'gimmick.on': '격자선 켜짐',
+  'gimmick.off': '격자선 꺼짐',
+  'original.hold': '원본 보기',
+  'userLut.add': 'LUT 장전',
+  'userLut.remove': '사용자 LUT 빼기',
+  'userLut.subtitle': '사용자 LUT',
+  'error.cube': '.cube 파일을 읽을 수 없습니다. 3D LUT(크기 2~65) 파일인지 확인해 주세요.',
+  'samples.title': '샘플 사진으로 체험하기',
+  'samples.item': '샘플 {n}',
+  'info.open': '앱 정보',
+  'info.title': '색감 사진관 · FilmLook Studio',
+  'info.disclaimer':
+    '이 프로젝트는 개인 학습 및 포트폴리오용입니다. 후지필름(FUJIFILM Corporation)과 관련이 없으며, 후지필름의 승인이나 후원을 받지 않았습니다. 프리셋은 공개 자료를 참고해 직접 만든 근사치이며, 실제 필름 시뮬레이션과 결과가 다를 수 있습니다. 언급된 제품명은 각 소유자의 상표입니다.',
+  'info.privacy': '사진은 이 기기 안에서만 처리되며 어디로도 전송되지 않습니다.',
+  'info.approx': '결과는 RAW가 아닌 JPEG를 다시 가공한 근사치입니다.',
+  'info.hdr': '갤럭시 Ultra HDR 사진은 HDR 정보(게인 맵)를 빼고 일반(SDR) JPEG로 저장합니다.',
+  'info.fonts': '글꼴: Space Grotesk, Space Mono, IBM Plex Sans KR (SIL Open Font License)',
+  'info.close': '닫기',
 };
 
 // 장식(art)에만 쓰는 문구

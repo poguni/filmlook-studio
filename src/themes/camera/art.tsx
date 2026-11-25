@@ -154,6 +154,11 @@ export function ViewfinderOverlay() {
         aria-hidden="true"
       >
         <path d="M14 34 L14 14 L34 14 M266 14 L286 14 L286 34 M286 166 L286 186 L266 186 M34 186 L14 186 L14 166" />
+        {/* 기믹: 3분할 격자선 (design/DESIGN.md 7.2) */}
+        <path
+          className="cam-grid"
+          d="M100 0 L100 200 M200 0 L200 200 M0 66.6 L300 66.6 M0 133.3 L300 133.3"
+        />
       </svg>
       <div className="cam-patch" aria-hidden="true" />
     </>
@@ -237,6 +242,15 @@ export function GlassSwatch({ filter }: { filter: MonoChoice }) {
   return (
     <span className={`cam-glass cam-glass-${filter}`} aria-hidden="true">
       {filter === 'none' ? copy['mono.none'] : artCopy.glass[filter]}
+    </span>
+  );
+}
+
+/** 기믹 레버 스위치. 켜면 손잡이가 오른쪽으로 (애니메이션 `lever`) */
+export function LeverSwitch({ on }: { on: boolean }) {
+  return (
+    <span className={`cam-lever${on ? ' is-on' : ''}`} aria-hidden="true">
+      <span className="cam-lever-knob" />
     </span>
   );
 }

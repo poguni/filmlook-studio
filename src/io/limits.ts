@@ -2,7 +2,7 @@
 /** 갤럭시 실기기 측정 전 임시값(백만 화소). 측정 후 PRD 6.3 표와 함께 고침 */
 export const PHONE_LIMIT_MP = 24;
 
-function isPhone(): boolean {
+export function isPhone(): boolean {
   const data = (navigator as Navigator & { userAgentData?: { mobile: boolean } }).userAgentData;
   return data?.mobile ?? /Android|iPhone|iPod/i.test(navigator.userAgent);
 }

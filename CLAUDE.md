@@ -37,7 +37,8 @@ filmlook-studio/
 │  ├─ presets/        # 프리셋 JSON (ORIG 제외 7종)
 │  ├─ io/             # JPEG 열기, EXIF 읽기·쓰기, 저장·공유
 │  └─ tuning/         # 개발용 프리셋 튜닝 화면
-├─ public/samples/    # 본인 촬영 샘플 JPEG (EXIF·GPS 제거 후 커밋)
+├─ public/samples/    # 본인 촬영 샘플 JPEG와 index.json (npm run samples로만 넣음)
+├─ scripts/           # 샘플 준비 스크립트 (Node 24로 .ts를 바로 실행)
 └─ luts/private/      # 로컬 전용 LUT, git 제외
 ```
 
@@ -50,7 +51,7 @@ filmlook-studio/
 - EXIF: APP1만 다루는 작은 모듈을 직접 작성(필요하면 piexifjs 등). 처리 규칙은 PRD 6.3 ‘EXIF 처리’
 - 글꼴: `@fontsource/*`로 앱에 포함(Google Fonts 링크 금지)
 - 테스트: Vitest(색 변환·LUT·EXIF 단위 테스트), Playwright(화면 스모크 테스트)
-- 배포: GitHub Actions → GitHub Pages
+- 배포: GitHub Actions → GitHub Pages (`.github/workflows/deploy.yml`, main에 올리면 lint·단위 테스트·빌드 후 배포)
 
 ## 명령어
 
@@ -63,6 +64,7 @@ filmlook-studio/
 | `npm run test` | Vitest 단위 테스트 |
 | `npm run e2e -- --trace off` | Playwright 스모크 테스트 |
 | `npm run lint` | ESLint + Prettier 검사 (형식만 틀리면 `npx prettier --write .`로 정리) |
+| `npm run samples -- 사진…` | 샘플 사진의 EXIF·GPS·XMP·게인 맵을 지워 `public/samples/`에 넣고 목록을 만듦 |
 
 - 처음 받은 뒤에는 `npm install`과 `npx playwright install chromium`을 한 번 실행합니다.
 - e2e는 개발 서버(5174 포트)에서만 열리는 검사용 창구 `window.__filmlook`(`src/app/devHook.ts`)으로 렌더 결과를 픽셀 단위로 비교합니다. 배포 빌드에는 들어가지 않습니다.

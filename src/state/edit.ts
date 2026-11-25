@@ -2,6 +2,8 @@
 import type { MonoFilter } from '../color/params';
 
 export type PresetCode = 'ORIG' | 'P01' | 'V02' | 'A03' | 'C04' | 'N05' | 'E06' | 'M07' | 'U01';
+/** 불러온 .cube가 붙는 9번째 칸 (PRD P-05) */
+export const USER_LUT = 'U01';
 export type MonoChoice = 'none' | MonoFilter;
 export type GrainSize = 'small' | 'large';
 

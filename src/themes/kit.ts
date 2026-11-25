@@ -28,7 +28,7 @@ export interface ThemeKit {
   HeaderCenter?: ComponentType<{ preset: PresetView }>;
   /** 데스크톱 왼쪽 열 (B: 카메라·장전된 필름·값 요약) */
   Aside?: ComponentType<ArtProps>;
-  /** 미리보기 사진 위 장식 (B: 브라이트 프레임 선) */
+  /** 미리보기 사진 위 장식 (B: 브라이트 프레임 선, 기믹 격자선). 기믹은 html의 data-gimmick으로 보임 */
   PreviewOverlay?: ComponentType;
   /** 비교 경계선 손잡이 */
   CompareHandle: ComponentType;
@@ -40,6 +40,8 @@ export interface ThemeKit {
   SheetLead?: ComponentType;
   /** 선택된 칸 표시 (B: LOADED) */
   FrameMark?: ComponentType;
+  /** 기믹 토글 버튼 안의 그림 (B: 레버 스위치) */
+  GimmickArt?: ComponentType<{ on: boolean }>;
   /** 흑백 필터 버튼 안의 견본 (B: 렌즈 필터 유리) */
   MonoSwatch?: ComponentType<{ filter: MonoChoice }>;
 }
