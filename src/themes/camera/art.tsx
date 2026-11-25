@@ -181,7 +181,7 @@ export function LcdCaption({ preset, strength, grain, mono }: ArtProps) {
       <span>
         {preset.code} {preset.name}
       </span>
-      <span>
+      <span className="cam-lcd-values">
         STR {strength} · GRN {grain} · FLT {copy[`mono.${mono}`]}
       </span>
       <span className="cam-lcd-hint">{copy['compare.hint']}</span>

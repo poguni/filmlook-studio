@@ -1,4 +1,4 @@
-import type { KeyboardEvent, RefObject } from 'react';
+import type { CSSProperties, KeyboardEvent, RefObject } from 'react';
 import { fill } from '../themes/copy';
 import { useTheme, type ArtProps } from '../themes/kit';
 
@@ -42,7 +42,8 @@ export function Preview({
   };
 
   return (
-    <section className="preview">
+    // 사진 비율을 CSS에 알려 미리보기 상자를 사진 모양대로 만듦 (사진이 없으면 3:2)
+    <section className="preview" style={{ '--photo-aspect': aspect } as CSSProperties}>
       <div className="preview-frame">
         <div className="preview-photo">
           {/* 사진 비율을 지키며 3:2 상자 안에 들어가는 실제 사진 영역 */}
