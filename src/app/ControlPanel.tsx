@@ -1,8 +1,13 @@
 import { MONO_FILTERS } from '../color/params';
 import type { GrainSize, MonoChoice } from '../state/edit';
 import { useTheme } from '../themes/kit';
+import { StarIcon } from './StarIcon';
 
 interface Props {
+  /** 고른 칸에 별표가 달려 있는지 (PRD C-05). 사진이 없으면 누를 수 없음 */
+  starred: boolean;
+  canStar: boolean;
+  onStar: () => void;
   strength: number;
   onStrength: (value: number) => void;
   grain: number;
@@ -27,6 +32,17 @@ export function ControlPanel(p: Props) {
   const { copy, StrengthArt, MonoSwatch, SaveCardArt } = useTheme();
   return (
     <section className="controls">
+      <button
+        type="button"
+        className="star-toggle"
+        aria-pressed={p.starred}
+        disabled={!p.canStar}
+        onClick={p.onStar}
+      >
+        <StarIcon filled={p.starred} />
+        <span>{copy['star.toggle']}</span>
+      </button>
+
       <div className="control-card">
         <div className="control-head">
           <label htmlFor="strength">{copy.strength}</label>

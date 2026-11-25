@@ -429,7 +429,7 @@
   --handle-half: 31px;
 }
 
-[data-theme='pastel'] .hold-original {
+[data-theme='pastel'] .photo-tool {
   border: 2px solid var(--color-line);
   background: var(--color-surface);
   color: var(--color-ink);
@@ -560,13 +560,13 @@
   box-shadow: var(--shadow-card);
 }
 
-[data-theme='pastel'] .controls > .control-card:nth-child(1) {
+[data-theme='pastel'] .controls > .control-card:nth-child(1 of .control-card) {
   display: flex;
   flex-direction: column;
   background: var(--pastel-mint);
 }
 
-[data-theme='pastel'] .controls > .control-card:nth-child(2) {
+[data-theme='pastel'] .controls > .control-card:nth-child(2 of .control-card) {
   background: var(--pastel-butter);
 }
 
@@ -597,7 +597,7 @@
   font-size: 13px;
 }
 
-[data-theme='pastel'] .controls > .control-card:nth-child(1) input {
+[data-theme='pastel'] .controls > .control-card:nth-child(1 of .control-card) input {
   order: 1;
 }
 

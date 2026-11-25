@@ -283,11 +283,17 @@ body {
   background: var(--color-surface);
 }
 
-/* 누르고 있는 동안 원본 보기 (PRD E-04). 비교 슬라이더 위에 올림 */
-.hold-original {
+/* 사진 오른쪽 아래 버튼 줄: 100% 확대(PRD E-07)와 누르고 있는 동안 원본 보기(PRD E-04).
+   비교 슬라이더 위에 올림 */
+.photo-tools {
   position: absolute;
   right: 14px;
   bottom: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.photo-tool {
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -297,6 +303,23 @@ body {
   font-size: 13px;
   user-select: none;
   touch-action: none;
+}
+
+.zoom-toggle[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+/* 확대 중 끌기 판: 한 손가락·마우스로 끌면 사진이 움직이고, 브라우저 스크롤·확대는 막음 */
+.zoom-pan {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.zoom-pan:active {
+  cursor: grabbing;
 }
 
 .preview-hint {
@@ -551,4 +574,47 @@ input[type='range'].compare-input {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* 별표 (PRD C-05): 조절판 맨 위 토글과 밀착 인화 칸 왼쪽 위 표시
+   테마 CSS의 카드 순서 선택자는 :nth-child(n of .control-card)로 써서 이 버튼을 세지 않음 */
+.star-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: var(--border-width) solid var(--color-line);
+  border-radius: 22px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+.star-toggle[aria-pressed='true'] {
+  border-color: var(--color-accent);
+}
+
+.star-toggle[aria-pressed='true'] svg {
+  color: var(--color-accent);
+}
+
+.star-toggle:disabled {
+  opacity: 0.45;
+}
+
+.frame-star {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  /* 썸네일 색과 상관없이 보이도록 반투명 검은 원 위 노란 별 */
+  color: #ffd34d;
+  pointer-events: none;
 }

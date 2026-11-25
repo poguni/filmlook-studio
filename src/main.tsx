@@ -2,6 +2,7 @@ import { StrictMode, lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import './themes/camera';
+import { registerServiceWorker } from './pwa/register';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('#root 요소가 없습니다');
@@ -11,6 +12,8 @@ const Tuning =
   import.meta.env.DEV && location.pathname.endsWith('/tuning')
     ? lazy(() => import('./tuning/Tuning').then((m) => ({ default: m.Tuning })))
     : null;
+
+registerServiceWorker();
 
 createRoot(root).render(
   <StrictMode>

@@ -58,6 +58,10 @@ export const copy: Copy = {
   'theme.name': '암실',
   'frame.no': '{no}A',
   'save.card': '인화하기',
+  'star.toggle': '후보에 별표',
+  'frame.starred': '{label}, 별표',
+  'zoom.toggle': '100% 확대',
+  'zoom.loading': '확대 준비 중…',
 };
 
 // 장식(art)에만 쓰는 문구

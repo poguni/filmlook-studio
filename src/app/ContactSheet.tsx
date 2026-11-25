@@ -2,10 +2,13 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { USER_LUT } from '../state/edit';
 import { fill } from '../themes/copy';
 import { useTheme, type PresetView } from '../themes/kit';
+import { StarIcon } from './StarIcon';
 
 interface Props {
   frames: PresetView[];
   selected: string;
+  /** 별표를 단 칸 (PRD C-05) */
+  starred: ReadonlySet<string>;
   thumbs: Map<string, ImageBitmap>;
   onSelect: (code: string) => void;
   /** .cube 파일을 골랐을 때 (PRD P-05) */
@@ -25,7 +28,15 @@ function Thumb({ bitmap }: { bitmap: ImageBitmap | undefined }) {
   return <canvas ref={ref} className="frame-thumb" aria-hidden="true" />;
 }
 
-export function ContactSheet({ frames, selected, thumbs, onSelect, onAddLut, onRemoveLut }: Props) {
+export function ContactSheet({
+  frames,
+  selected,
+  starred,
+  thumbs,
+  onSelect,
+  onAddLut,
+  onRemoveLut,
+}: Props) {
   const { copy, SheetLead, FrameMark } = useTheme();
   const lutInput = useRef<HTMLInputElement>(null);
   // 사용자 LUT 칸은 ‘빼기’ 버튼을 함께 둠. 버튼 안에 버튼을 넣을 수 없어 감싸는 칸에 나란히 둠
@@ -51,28 +62,34 @@ export function ContactSheet({ frames, selected, thumbs, onSelect, onAddLut, onR
     <section className="sheet" aria-label={copy['sheet.label']}>
       {SheetLead && <SheetLead />}
       <div className="sheet-frames">
-        {frames.map((f) =>
-          slot(
+        {frames.map((f) => {
+          const label = fill(copy['frame.label'], {
+            name: f.code === 'ORIG' ? f.name : `${f.code} ${f.name}`,
+          });
+          return slot(
             f.code,
             <button
               key={f.code}
               type="button"
               className="frame"
               aria-pressed={f.code === selected}
-              aria-label={fill(copy['frame.label'], {
-                name: f.code === 'ORIG' ? f.name : `${f.code} ${f.name}`,
-              })}
+              aria-label={starred.has(f.code) ? fill(copy['frame.starred'], { label }) : label}
               onClick={() => onSelect(f.code)}
             >
               {FrameMark && <FrameMark />}
               <Thumb bitmap={thumbs.get(f.code)} />
+              {starred.has(f.code) && (
+                <span className="frame-star" aria-hidden="true">
+                  <StarIcon filled />
+                </span>
+              )}
               <span className="frame-no">
                 {fill(copy['frame.no'], { no: f.no })} ▸ {f.code}
               </span>
               <span className="frame-name">{f.name}</span>
             </button>,
-          ),
-        )}
+          );
+        })}
         <button type="button" className="sheet-add" onClick={() => lutInput.current?.click()}>
           <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
             <path d="M11 4 L11 18 M4 11 L18 11" stroke="currentColor" strokeWidth="2.2" />

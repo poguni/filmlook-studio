@@ -36,6 +36,7 @@ filmlook-studio/
 │  ├─ color/          # 톤 커브, HSL, LUT 굽기, .cube 파서, F-Log2 변환
 │  ├─ presets/        # 프리셋 JSON (ORIG 제외 7종)
 │  ├─ io/             # JPEG 열기, EXIF 읽기·쓰기, 저장·공유
+│  ├─ pwa/            # 서비스 워커(sw.ts, 빌드 때 sw.js로)와 등록. 배포 빌드에서만 동작
 │  └─ tuning/         # 개발용 프리셋 튜닝 화면
 ├─ public/samples/    # 본인 촬영 샘플 JPEG와 index.json (npm run samples로만 넣음)
 ├─ scripts/           # 샘플 준비 스크립트 (Node 24로 .ts를 바로 실행)

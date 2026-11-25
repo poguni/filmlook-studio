@@ -58,6 +58,10 @@ export const copy: Copy = {
   'theme.name': '파스텔 사진관',
   'frame.no': '{no}',
   'save.card': '사진 뽑기',
+  'star.toggle': '찜하기',
+  'frame.starred': '{label}, 별표',
+  'zoom.toggle': '100% 확대',
+  'zoom.loading': '확대 준비 중…',
 };
 
 // 장식(art)에만 쓰는 문구

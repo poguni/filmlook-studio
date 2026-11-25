@@ -58,6 +58,10 @@ export const copy: Copy = {
   'theme.name': '카메라 기어',
   'frame.no': '{no}',
   'save.card': '저장',
+  'star.toggle': '별표',
+  'frame.starred': '{label}, 별표',
+  'zoom.toggle': '100% 확대',
+  'zoom.loading': '확대 준비 중…',
 };
 
 // 장식(art)에만 쓰는 문구

@@ -467,7 +467,7 @@
 }
 
 /* 강도 값은 노광 타이머가 크게 보여 주므로 머리글 숫자는 숨김 (접근용 output은 그대로) */
-[data-theme='darkroom'] .controls > .control-card:first-child .control-value {
+[data-theme='darkroom'] .controls > .control-card:nth-child(1 of .control-card) .control-value {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -517,16 +517,16 @@
   color: var(--color-muted);
 }
 
-[data-theme='darkroom'] .controls > .control-card:first-child {
+[data-theme='darkroom'] .controls > .control-card:nth-child(1 of .control-card) {
   display: flex;
   flex-direction: column;
 }
 
-[data-theme='darkroom'] .controls > .control-card:first-child .dr-timer-wrap {
+[data-theme='darkroom'] .controls > .control-card:nth-child(1 of .control-card) .dr-timer-wrap {
   display: contents;
 }
 
-[data-theme='darkroom'] .controls > .control-card:first-child input {
+[data-theme='darkroom'] .controls > .control-card:nth-child(1 of .control-card) input {
   order: 1;
 }
 

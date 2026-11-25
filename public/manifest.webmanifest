@@ -1,0 +1,21 @@
+{
+  "name": "색감 사진관",
+  "short_name": "색감 사진관",
+  "description": "사진 한 장에 필름 색감을 입혀 보는 웹 편집기",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1b1b1b",
+  "theme_color": "#1b1b1b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

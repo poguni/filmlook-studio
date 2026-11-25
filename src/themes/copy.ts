@@ -70,6 +70,13 @@ export interface Copy {
   'frame.no': string;
   /** 조절판 저장 카드의 버튼 (헤더 저장과 같은 동작) */
   'save.card': string;
+  /** 별표 토글 (PRD C-05). 고른 칸에 별표를 달거나 뗌 */
+  'star.toggle': string;
+  /** 별표가 달린 칸의 접근 이름. {label}에 frame.label 결과 */
+  'frame.starred': string;
+  /** 100% 확대 보기 토글과, 원본 해상도를 불러오는 동안의 문구 (PRD E-07) */
+  'zoom.toggle': string;
+  'zoom.loading': string;
 }
 
 export function fill(template: string, values: Record<string, string | number>): string {

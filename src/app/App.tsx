@@ -21,13 +21,8 @@ import { download, encodeJpeg, outputName, outputSize } from '../io/save';
 import { canShareFiles, shareFile } from '../io/share';
 import { ORIGINAL, PRESETS, findPreset, frameNo } from '../presets';
 import { lutFor } from '../presets/luts';
-import {
-  DEFAULT_EDIT,
-  USER_LUT,
-  type EditState,
-  type MonoChoice,
-  type PresetCode,
-} from '../state/edit';
+import { USER_LUT, type EditState, type MonoChoice, type PresetCode } from '../state/edit';
+import { saveEdit, savedEdit } from '../state/remember';
 import { fill } from '../themes/copy';
 import { THEMES, nextTheme, saveTheme, savedTheme } from '../themes';
 import type { Copy } from '../themes/copy';
@@ -38,6 +33,7 @@ import { canvasPixels, installDevHook } from './devHook';
 import { Header } from './Header';
 import { InfoDialog } from './InfoDialog';
 import { COMPARE_STEP, Preview } from './Preview';
+import { clampCenter, zoomCenterAt, zoomRegion, type Point, type Size } from './zoom';
 import './app.css';
 
 const BASE_FRAMES: PresetView[] = [ORIGINAL, ...PRESETS].map((p) => ({
@@ -51,6 +47,14 @@ interface UserLut {
   name: string;
   lut: Lut;
 }
+
+/** 확대 중 방향키로 끄는 방향. 오른쪽 키는 사진의 오른쪽을 보려는 것이라 왼쪽으로 끄는 것과 같음 */
+const PAN_KEYS: Partial<Record<string, [number, number]>> = {
+  ArrowLeft: [1, 0],
+  ArrowRight: [-1, 0],
+  ArrowUp: [0, 1],
+  ArrowDown: [0, -1],
+};
 
 const clamp100 = (n: number) => Math.min(100, Math.max(0, n));
 const longSide = (w: number, h: number) => Math.max(w, h);
@@ -67,12 +71,13 @@ function lutOf(code: string, mono: MonoChoice, user: UserLut | null): Lut | null
 
 export function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fitRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
   const [webgl2, setWebgl2] = useState(true);
   const [photo, setPhoto] = useState<OpenedPhoto | null>(null);
   const [photoKey, setPhotoKey] = useState(0);
-  const [edit, setEdit] = useState<EditState>(DEFAULT_EDIT);
+  const [edit, setEdit] = useState<EditState>(savedEdit);
   const [userLut, setUserLut] = useState<UserLut | null>(null);
   const [thumbs, setThumbs] = useState<Map<string, ImageBitmap>>(new Map());
   const [saving, setSaving] = useState<number | null>(null);
@@ -84,6 +89,8 @@ export function App() {
     userLut: UserLut | null;
   } | null>(null);
   const [holding, setHolding] = useState(false);
+  // 별표는 이 사진의 후보를 좁히는 표시라 사진을 새로 열면 비움 (PRD C-05)
+  const [starred, setStarred] = useState<ReadonlySet<string>>(new Set());
   const [gimmick, setGimmick] = useState(false);
   // 테마는 겉모습만 바꾸고 편집 상태는 그대로 둠 (PRD O-02, O-05)
   const [theme, setTheme] = useState<ThemeName>(savedTheme);
@@ -94,6 +101,14 @@ export function App() {
   // 오류는 문구 키로 들고 있어 테마를 바꾸면 그 테마의 말투로 다시 보임
   const [error, setError] = useState<keyof Copy | null>(null);
   const [limitMp] = useState(saveLimitMp);
+  // 100% 확대 보기 (PRD E-07): 가운데 위치(사진 안 0~1), 원본 해상도 비트맵, 사진 상자의 기기 픽셀 크기
+  const [zoom, setZoom] = useState<Point | null>(null);
+  const [full, setFull] = useState<{ photo: OpenedPhoto; bitmap: ImageBitmap } | null>(null);
+  const [box, setBox] = useState<Size | null>(null);
+  const decodingRef = useRef<OpenedPhoto | null>(null);
+  // 지금 렌더러 텍스처에 올라가 있는 그림 (값만 바뀔 때는 다시 올리지 않음)
+  const shownRef = useRef<{ source: ImageBitmap | null; key: string }>({ source: null, key: '' });
+  const pieceRef = useRef<OffscreenCanvas | null>(null);
 
   const frames = useMemo<PresetView[]>(
     () =>
@@ -112,6 +127,15 @@ export function App() {
       : null;
   const current = frames.find((f) => f.code === edit.preset) ?? frames[0];
   const mono = effectiveMono(edit);
+  const fullBitmap = full && full.photo === photo ? full.bitmap : null;
+  const region = useMemo(
+    () =>
+      zoom && fullBitmap && box
+        ? zoomRegion({ width: fullBitmap.width, height: fullBitmap.height }, box, zoom)
+        : null,
+    [zoom, fullBitmap, box],
+  );
+  const zoomLoading = zoom !== null && region === null;
   // 회전해도 화소 수는 같으므로 헤더의 크기로 저장 크기를 미리 판단
   const target = photo ? outputSize(photo.info.width, photo.info.height, limitMp) : null;
   const saveInfo = shareReady
@@ -148,9 +172,8 @@ export function App() {
     setGimmick(false);
   }, []);
 
-  useEffect(() => {
-    if (photo) rendererRef.current?.setImage(photo.preview);
-  }, [photo]);
+  // 다음에 열 때 같은 값으로 시작 (PRD O-01)
+  useEffect(() => saveEdit(edit), [edit]);
 
   useEffect(() => {
     const r = rendererRef.current;
@@ -158,6 +181,20 @@ export function App() {
     const lut = lutOf(edit.preset, effectiveMono(edit), userLut);
     if (lut) r.setLut(lut);
     const { info, preview } = photo;
+    // 확대 중이면 원본 해상도에서 화면 크기만큼 잘라 1:1로, 아니면 미리보기 축소본 전체
+    const source = region && fullBitmap ? fullBitmap : preview;
+    const key = region ? `${region.sx},${region.sy},${region.sw},${region.sh}` : 'fit';
+    if (shownRef.current.source !== source || shownRef.current.key !== key) {
+      if (region && fullBitmap) {
+        const piece = (pieceRef.current ??= new OffscreenCanvas(1, 1));
+        piece.width = region.sw;
+        piece.height = region.sh;
+        const { sx, sy, sw, sh } = region;
+        piece.getContext('2d')?.drawImage(fullBitmap, sx, sy, sw, sh, 0, 0, sw, sh);
+        r.setImage(piece);
+      } else r.setImage(preview);
+      shownRef.current = { source, key };
+    }
     r.render({
       // 원본 칸은 LUT 없이 강도 0으로 그려 원본과 정확히 같게 함
       strength: lut ? edit.strength / 100 : 0,
@@ -168,10 +205,81 @@ export function App() {
         edit.grainSize,
         edit.strength,
         longSide(info.width, info.height),
-        longSide(preview.width, preview.height),
+        longSide(source.width, source.height),
       ),
+      // 입자는 원본 좌표로 만들어 확대 화면과 저장 결과의 입자가 같은 자리에 생김
+      offset: region && fullBitmap ? [region.sx, region.sy] : undefined,
     });
-  }, [photo, edit, userLut, holding]);
+  }, [photo, edit, userLut, holding, region, fullBitmap]);
+
+  // 사진 상자의 기기 픽셀 크기. 확대 보기에서 이만큼을 원본에서 잘라 냄
+  useEffect(() => {
+    const el = fitRef.current;
+    if (!el || !photo) return;
+    const ro = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.round(el.clientWidth * dpr);
+      const height = Math.round(el.clientHeight * dpr);
+      if (width && height) setBox({ width, height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [photo]);
+
+  const zoomIn = useCallback(
+    (at: Point) => {
+      if (!photo || !box) return;
+      // 원본을 디코딩하기 전이라 미리보기 비율과 헤더의 긴 변으로 원본 크기를 어림함
+      const { info, preview } = photo;
+      const k = longSide(info.width, info.height) / longSide(preview.width, preview.height);
+      setZoom(zoomCenterAt({ width: preview.width * k, height: preview.height * k }, box, at));
+      if (full?.photo === photo || decodingRef.current === photo) return;
+      decodingRef.current = photo;
+      decodeFull(photo.file)
+        .then(
+          (bitmap) =>
+            setFull((prev) => {
+              prev?.bitmap.close();
+              return { photo, bitmap };
+            }),
+          () => {
+            setZoom(null);
+            setError('error.decode');
+          },
+        )
+        .finally(() => {
+          if (decodingRef.current === photo) decodingRef.current = null;
+        });
+    },
+    [photo, box, full],
+  );
+
+  // 맞춤 보기로 돌아가면 원본 비트맵(24MP면 약 96MB)을 바로 놓아줌
+  const zoomOut = useCallback(() => {
+    setZoom(null);
+    setFull((prev) => {
+      prev?.bitmap.close();
+      return null;
+    });
+  }, []);
+
+  const pan = useCallback(
+    (dx: number, dy: number) => {
+      if (!fullBitmap || !box) return;
+      const dpr = window.devicePixelRatio || 1;
+      const size = { width: fullBitmap.width, height: fullBitmap.height };
+      // 1:1이라 화면 1px = 원본 dpr px. 끈 방향과 반대로 가운데가 움직임
+      setZoom(
+        (z) =>
+          z &&
+          clampCenter(size, box, {
+            x: z.x - (dx * dpr) / size.width,
+            y: z.y - (dy * dpr) / size.height,
+          }),
+      );
+    },
+    [fullBitmap, box],
+  );
 
   // 썸네일은 사진이나 사용자 LUT를 바꿨을 때만 다시 만듦 (design/DESIGN.md 6.1)
   useEffect(() => {
@@ -202,6 +310,7 @@ export function App() {
     installDevHook({
       photoName: photo?.name ?? null,
       readRender: () => (photo ? (rendererRef.current?.readPixels() ?? null) : null),
+      zoomRegion: region,
       readSource: () => (photo ? canvasPixels(photo.preview) : null),
       renderTiled: async (tileSize) => {
         if (!photo) return null;
@@ -221,24 +330,29 @@ export function App() {
         return canvasPixels(out);
       },
     });
-  }, [photo, edit, userLut]);
+  }, [photo, edit, userLut, region]);
 
-  const open = useCallback(async (file: File | undefined) => {
-    if (!file) return;
-    setError(null);
-    try {
-      const next = await openJpeg(file);
-      setPhoto((prev) => {
-        prev?.preview.close();
-        return next;
-      });
-      setPhotoKey((k) => k + 1);
-      // 사진을 새로 열면 비교 위치는 0으로 (PRD E-01)
-      setEdit((s) => ({ ...s, compare: 0 }));
-    } catch (e) {
-      setError(e instanceof NotJpegError ? 'error.notJpeg' : 'error.decode');
-    }
-  }, []);
+  const open = useCallback(
+    async (file: File | undefined) => {
+      if (!file) return;
+      setError(null);
+      try {
+        const next = await openJpeg(file);
+        setPhoto((prev) => {
+          prev?.preview.close();
+          return next;
+        });
+        setPhotoKey((k) => k + 1);
+        setStarred(new Set());
+        zoomOut();
+        // 사진을 새로 열면 비교 위치는 0으로 (PRD E-01)
+        setEdit((s) => ({ ...s, compare: 0 }));
+      } catch (e) {
+        setError(e instanceof NotJpegError ? 'error.notJpeg' : 'error.decode');
+      }
+    },
+    [zoomOut],
+  );
 
   // 프리셋을 고르면 입자 양은 그 프리셋의 기본값으로 바뀜 (PRD E-05)
   const selectPreset = useCallback(
@@ -266,8 +380,20 @@ export function App() {
     [selectPreset],
   );
 
+  const toggleStar = () =>
+    setStarred((prev) => {
+      const next = new Set(prev);
+      if (!next.delete(edit.preset)) next.add(edit.preset);
+      return next;
+    });
+
   const removeLut = () => {
     setUserLut(null);
+    setStarred((prev) => {
+      const next = new Set(prev);
+      next.delete(USER_LUT);
+      return next;
+    });
     setEdit((s) => (s.preset === USER_LUT ? { ...s, preset: 'ORIG', grain: 0 } : s));
   };
 
@@ -355,6 +481,18 @@ export function App() {
         setHolding(true);
         return;
       }
+      if (zoom && e.key === 'Escape') {
+        zoomOut();
+        return;
+      }
+      // 확대 중에는 방향키로 사진을 화면의 1/5씩 움직임
+      const panDir = PAN_KEYS[e.key];
+      if (zoom && box && panDir) {
+        e.preventDefault();
+        const dpr = window.devicePixelRatio || 1;
+        pan((panDir[0] * box.width) / dpr / 5, (panDir[1] * box.height) / dpr / 5);
+        return;
+      }
       if (e.key === 't' || e.key === 'T') {
         changeTheme(nextTheme(theme));
         return;
@@ -374,7 +512,19 @@ export function App() {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [saveOrShare, saving, photo, frames, selectPreset, changeTheme, theme]);
+  }, [
+    saveOrShare,
+    saving,
+    photo,
+    frames,
+    selectPreset,
+    changeTheme,
+    theme,
+    zoom,
+    box,
+    pan,
+    zoomOut,
+  ]);
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
@@ -437,6 +587,12 @@ export function App() {
           )}
           <Preview
             canvasRef={canvasRef}
+            fitRef={fitRef}
+            zoomed={zoom !== null}
+            zoomLoading={zoomLoading}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            onPan={pan}
             hasPhoto={photo !== null}
             aspect={aspect}
             compare={edit.compare}
@@ -448,6 +604,9 @@ export function App() {
             {...art}
           />
           <ControlPanel
+            starred={starred.has(edit.preset)}
+            canStar={photo !== null}
+            onStar={toggleStar}
             strength={edit.strength}
             onStrength={(strength) => setEdit((s) => ({ ...s, strength }))}
             grain={edit.grain}
@@ -465,6 +624,7 @@ export function App() {
           <ContactSheet
             frames={frames}
             selected={edit.preset}
+            starred={starred}
             thumbs={thumbs}
             onSelect={selectPreset}
             onAddLut={(file) => void addLut(file)}

@@ -1,9 +1,12 @@
 // 개발 서버에서만 여는 검사용 창구. Playwright가 렌더 결과를 픽셀 단위로 비교할 때 씀 (PRD 9장 ‘색 정확도’)
 import type { Pixels } from '../gl/renderer';
+import type { Region } from './zoom';
 
 export interface DevHook {
   photoName: string | null;
   readRender: () => Pixels | null;
+  /** 100% 확대 중이면 원본에서 잘라 낸 영역, 아니면 null (PRD E-07) */
+  zoomRegion: Region | null;
   readSource: () => Pixels | null;
   /** 미리보기 비트맵을 저장과 같은 타일 경로로 그린 결과 (타일 이음매 검사용) */
   renderTiled: (tileSize: number) => Promise<Pixels | null>;
