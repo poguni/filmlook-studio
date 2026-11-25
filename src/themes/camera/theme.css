@@ -716,10 +716,9 @@
     font-size: 12px;
   }
 
-  .cam-counter-dial {
-    width: 42px;
-    height: 42px;
-    font-size: 16px;
+  /* 테마 전환 버튼이 들어갈 자리를 위해 스마트폰에서는 프레임 카운터를 숨김 (LCD 줄에 코드가 있음) */
+  .cam-counter {
+    display: none;
   }
 
   [data-theme='camera'] .app-actions {

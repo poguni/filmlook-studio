@@ -29,8 +29,9 @@ import {
   type PresetCode,
 } from '../state/edit';
 import { fill } from '../themes/copy';
-import { camera } from '../themes/camera';
-import { ThemeContext, type PresetView } from '../themes/kit';
+import { THEMES, nextTheme, saveTheme, savedTheme } from '../themes';
+import type { Copy } from '../themes/copy';
+import { ThemeContext, type PresetView, type ThemeName } from '../themes/kit';
 import { ContactSheet } from './ContactSheet';
 import { ControlPanel } from './ControlPanel';
 import { canvasPixels, installDevHook } from './devHook';
@@ -38,10 +39,6 @@ import { Header } from './Header';
 import { InfoDialog } from './InfoDialog';
 import { COMPARE_STEP, Preview } from './Preview';
 import './app.css';
-
-// M4까지는 B 테마 1종 (PRD O-02). 테마 전환은 M5에서 추가
-const kit = camera;
-const { copy } = kit;
 
 const BASE_FRAMES: PresetView[] = [ORIGINAL, ...PRESETS].map((p) => ({
   code: p.code,
@@ -88,9 +85,14 @@ export function App() {
   } | null>(null);
   const [holding, setHolding] = useState(false);
   const [gimmick, setGimmick] = useState(false);
+  // 테마는 겉모습만 바꾸고 편집 상태는 그대로 둠 (PRD O-02, O-05)
+  const [theme, setTheme] = useState<ThemeName>(savedTheme);
+  const kit = THEMES[theme];
+  const { copy } = kit;
   const [infoOpen, setInfoOpen] = useState(false);
   const [samples, setSamples] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  // 오류는 문구 키로 들고 있어 테마를 바꾸면 그 테마의 말투로 다시 보임
+  const [error, setError] = useState<keyof Copy | null>(null);
   const [limitMp] = useState(saveLimitMp);
 
   const frames = useMemo<PresetView[]>(
@@ -101,7 +103,7 @@ export function App() {
             { code: USER_LUT, no: '09', name: userLut.name, subtitle: copy['userLut.subtitle'] },
           ]
         : BASE_FRAMES,
-    [userLut],
+    [userLut, copy],
   );
   // 편집 값이나 사진이 바뀌면 공유 대기는 무효가 되고 저장 버튼으로 돌아감 (design/DESIGN.md 6.5)
   const shareReady =
@@ -133,6 +135,18 @@ export function App() {
   useEffect(() => {
     document.documentElement.dataset.gimmick = gimmick ? 'on' : 'off';
   }, [gimmick]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    saveTheme(theme);
+    void THEMES[theme].loadFonts?.();
+  }, [theme]);
+
+  // 테마를 바꾸면 기믹만 꺼짐 (design/DESIGN.md 6.3)
+  const changeTheme = useCallback((next: ThemeName) => {
+    setTheme(next);
+    setGimmick(false);
+  }, []);
 
   useEffect(() => {
     if (photo) rendererRef.current?.setImage(photo.preview);
@@ -222,7 +236,7 @@ export function App() {
       // 사진을 새로 열면 비교 위치는 0으로 (PRD E-01)
       setEdit((s) => ({ ...s, compare: 0 }));
     } catch (e) {
-      setError(e instanceof NotJpegError ? copy['error.notJpeg'] : copy['error.decode']);
+      setError(e instanceof NotJpegError ? 'error.notJpeg' : 'error.decode');
     }
   }, []);
 
@@ -246,7 +260,7 @@ export function App() {
         selectPreset(USER_LUT);
       } catch (e) {
         if (!(e instanceof CubeError)) console.error(e);
-        setError(copy['error.cube']);
+        setError('error.cube');
       }
     },
     [selectPreset],
@@ -298,7 +312,7 @@ export function App() {
         setPending({ file: new File([blob], name, { type: 'image/jpeg' }), photo, edit, userLut });
       else download(blob, name);
     } catch {
-      setError(copy['error.save']);
+      setError('error.save');
     } finally {
       setSaving(null);
     }
@@ -341,6 +355,10 @@ export function App() {
         setHolding(true);
         return;
       }
+      if (e.key === 't' || e.key === 'T') {
+        changeTheme(nextTheme(theme));
+        return;
+      }
       if (photo && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
         e.preventDefault();
         const dir = e.key === 'ArrowRight' ? 1 : -1;
@@ -356,7 +374,7 @@ export function App() {
       window.removeEventListener('keydown', onKey);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [saveOrShare, saving, photo, frames, selectPreset]);
+  }, [saveOrShare, saving, photo, frames, selectPreset, changeTheme, theme]);
 
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
@@ -365,7 +383,14 @@ export function App() {
 
   const { Aside } = kit;
   const aspect = photo ? photo.preview.width / photo.preview.height : 1.5;
-  const art = { preset: current, strength: edit.strength, grain: edit.grain, mono, saveInfo };
+  const step: 1 | 2 | 3 = saving !== null ? 3 : photo ? 2 : 1;
+  const art = { preset: current, strength: edit.strength, grain: edit.grain, mono, saveInfo, step };
+  const saveLabel =
+    saving !== null
+      ? fill(copy['save.progress'], { n: saving })
+      : shareReady
+        ? copy.share
+        : copy['save.card'];
 
   return (
     <ThemeContext.Provider value={kit}>
@@ -380,6 +405,8 @@ export function App() {
           gimmick={gimmick}
           onGimmick={() => setGimmick((g) => !g)}
           onInfo={() => setInfoOpen(true)}
+          theme={theme}
+          onTheme={changeTheme}
           onOpen={() => inputRef.current?.click()}
           onSave={saveOrShare}
         />
@@ -397,7 +424,7 @@ export function App() {
 
         <div className="app-notices">
           {!webgl2 && <p role="alert">{copy['error.noWebgl2']}</p>}
-          {error && <p role="alert">{error}</p>}
+          {error && <p role="alert">{copy[error]}</p>}
           {photo && isAdobeRgb(photo.info.iccName) && <p role="status">{copy['icc.adobeRgb']}</p>}
         </div>
 
@@ -417,9 +444,7 @@ export function App() {
             onHold={setHolding}
             photoKey={photoKey}
             samples={samples}
-            onSample={(name) =>
-              void fetchSample(name).then(open, () => setError(copy['error.decode']))
-            }
+            onSample={(name) => void fetchSample(name).then(open, () => setError('error.decode'))}
             {...art}
           />
           <ControlPanel
@@ -432,6 +457,10 @@ export function App() {
             mono={edit.mono}
             monoEnabled={findPreset(edit.preset)?.params.mono != null}
             onMono={(m) => setEdit((s) => ({ ...s, mono: m }))}
+            saveInfo={saveInfo}
+            saveLabel={saveLabel}
+            canSave={photo !== null && saving === null}
+            onSave={saveOrShare}
           />
           <ContactSheet
             frames={frames}

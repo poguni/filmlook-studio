@@ -11,6 +11,7 @@
 - **사진은 기기 밖으로 나가지 않습니다:** 모든 처리를 브라우저 안에서 합니다. 서버 업로드, 분석 도구, 외부 글꼴 요청이 없습니다.
 - **직접 만든 색 처리:** 프리셋은 JSON 파라미터(톤 커브, OKLCh 8구간 HSL, 스플릿 토닝 등)로 정의하고, 실행할 때 33³ 3D LUT로 구워 WebGL2 셰이더 하나로 적용합니다.
 - **내 LUT 쓰기:** `.cube` 파일을 불러오면 9번째 칸으로 붙습니다.
+- **테마 3종:** 붉은 안전등의 암실, 레인지파인더 카메라 기어(기본), 스티커 사진관 같은 파스텔. 기능은 같고 겉모습만 바뀌며, 마지막으로 고른 테마를 기억합니다.
 
 ## 프리셋
 
@@ -33,6 +34,7 @@
 | `←` `→` | 비교 경계선 이동 |
 | `\` (누르고 있기) | 원본 보기 |
 | `Ctrl` + `S` | 저장 |
+| `T` | 다음 테마 |
 
 ## 기술
 
@@ -68,4 +70,4 @@ npm run build        # 배포용 빌드
 ## 라이선스
 
 - 코드: [MIT](LICENSE)
-- 글꼴: Space Grotesk, Space Mono, IBM Plex Sans KR — SIL Open Font License 1.1 (`@fontsource` 패키지로 포함)
+- 글꼴: Space Grotesk, Space Mono, IBM Plex Sans KR, IBM Plex Mono, Nanum Myeongjo, Jua, Gowun Dodum — SIL Open Font License 1.1 (`@fontsource` 패키지로 포함)

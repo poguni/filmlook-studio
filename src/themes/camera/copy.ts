@@ -54,6 +54,10 @@ export const copy: Copy = {
   'info.hdr': '갤럭시 Ultra HDR 사진은 HDR 정보(게인 맵)를 빼고 일반(SDR) JPEG로 저장합니다.',
   'info.fonts': '글꼴: Space Grotesk, Space Mono, IBM Plex Sans KR (SIL Open Font License)',
   'info.close': '닫기',
+  'theme.label': '테마 바꾸기',
+  'theme.name': '카메라 기어',
+  'frame.no': '{no}',
+  'save.card': '저장',
 };
 
 // 장식(art)에만 쓰는 문구

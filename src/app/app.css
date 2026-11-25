@@ -38,6 +38,8 @@ input[type='range'] {
 
 .app {
   min-height: 100dvh;
+  /* 장식(테이프 등)이 화면 밖으로 삐져나와도 가로 스크롤이 생기지 않게. clip은 sticky 헤더를 깨지 않음 */
+  overflow-x: clip;
   display: flex;
   flex-direction: column;
 }
@@ -107,6 +109,89 @@ input[type='range'] {
 .btn-info {
   justify-content: center;
   border-radius: 50%;
+}
+
+/* 테마 전환 (design/DESIGN.md 6.3) */
+.theme-switcher {
+  position: relative;
+}
+
+.theme-button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: var(--border-width) solid var(--color-line);
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+.theme-swatch {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.theme-swatch-darkroom {
+  background: var(--swatch-darkroom);
+}
+
+.theme-swatch-camera {
+  background: var(--swatch-camera);
+}
+
+.theme-swatch-pastel {
+  background: var(--swatch-pastel);
+}
+
+.theme-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  min-width: 200px;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-m);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.theme-menu button {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-s);
+  background: none;
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  text-align: left;
+}
+
+.theme-menu button[aria-checked='true'] {
+  font-weight: 700;
+}
+
+.theme-menu button:hover {
+  background: var(--color-surface-2);
+}
+
+.theme-menu svg {
+  margin-left: auto;
+}
+
+/* 테마를 바꿀 때 배경색만 0.3초 전환 (design/DESIGN.md 6.3) */
+body {
+  transition: background-color 0.3s;
 }
 
 /* 앱 정보 */

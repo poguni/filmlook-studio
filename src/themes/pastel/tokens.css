@@ -1,0 +1,52 @@
+/* C 파스텔 사진관 테마 토큰 (design/DESIGN.md 4.3) */
+:root {
+  /* 테마 전환 메뉴의 견본 (모든 테마에서 보이므로 전역) */
+  --swatch-pastel: linear-gradient(90deg, #ffc8d8 50%, #c6efdf 50%);
+}
+
+:root[data-theme='pastel'] {
+  --color-bg: #fff7ec;
+  --color-surface: #ffffff;
+  --color-surface-2: #c6efdf;
+  --color-line: #4a3550;
+  --color-ink: #4a3550;
+  --color-muted: #6e5476;
+  --color-accent: #ff6f98;
+  --color-on-accent: #2a1020;
+  --color-highlight: #b8285f;
+  --color-glow: transparent;
+  --color-preview-mat: #ffffff;
+  --font-display: 'Jua', 'Gowun Dodum', system-ui, sans-serif;
+  --font-body: 'Gowun Dodum', system-ui, sans-serif;
+  --font-mono: 'Jua', 'Gowun Dodum', system-ui, sans-serif;
+  --radius-s: 12px;
+  --radius-m: 18px;
+  --radius-l: 22px;
+  --shadow-card: 5px 5px 0 #4a3550;
+  --border-width: 2.5px;
+
+  --pastel-mint: #c6efdf;
+  --pastel-butter: #ffeaa0;
+  --pastel-lavender: #ded3ff;
+  --pastel-pink: #ffc8d8;
+  --pastel-sky: #cfe7ff;
+
+  /* 일러스트 전용 */
+  --art-dot: #f3d9c9;
+  --art-cheek: #ff8fb0;
+  --art-lens: #b9a6ff;
+  --art-cap: #ffd86b;
+  --art-bear: #f2cba3;
+  --art-bear-ear: #e8b98f;
+  --art-bear-muzzle: #fff3e3;
+  --art-blush: #ff9cb9;
+  --art-candy-none: #f4f0f6;
+  --art-candy-yellow: #fff09a;
+  --art-candy-red: #ffb0c4;
+  --art-candy-green: #bff0c8;
+  --art-sparkle-1: #fff6b0;
+  --art-sparkle-2: #ffd1e0;
+  --art-sparkle-3: #d9fff0;
+  --art-button-pink: #ff8fb0;
+  --art-button-ink: #3a1f30;
+}

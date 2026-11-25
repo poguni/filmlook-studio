@@ -10,6 +10,8 @@ export interface PresetView {
   subtitle: string;
 }
 
+export type ThemeName = 'darkroom' | 'camera' | 'pastel';
+
 export interface ArtProps {
   preset: PresetView;
   strength: number;
@@ -18,10 +20,16 @@ export interface ArtProps {
   mono: MonoChoice;
   /** 저장 정보 문구 (상한에 걸리면 save.downscaled) */
   saveInfo: string;
+  /** 작업 단계: 1 사진 열기, 2 고르고 맞추기, 3 저장 중 (A 테마 현상 트레이) */
+  step: 1 | 2 | 3;
 }
 
 export interface ThemeKit {
+  /** html의 data-theme 값. CSS 토큰과 배치가 이 이름으로 바뀜 */
+  name: ThemeName;
   copy: Copy;
+  /** 테마 전용 글꼴을 불러옴. 기본 테마 B는 처음부터 불러오므로 없음 (design/DESIGN.md 9장) */
+  loadFonts?: () => Promise<unknown>;
   /** 헤더 왼쪽 로고 */
   Brand: ComponentType;
   /** 헤더 가운데 장식 (B: 프레임 카운터) */
@@ -30,6 +38,10 @@ export interface ThemeKit {
   Aside?: ComponentType<ArtProps>;
   /** 미리보기 사진 위 장식 (B: 브라이트 프레임 선, 기믹 격자선). 기믹은 html의 data-gimmick으로 보임 */
   PreviewOverlay?: ComponentType;
+  /** 미리보기 틀 위쪽 바깥 장식 (A: 빨랫줄에 걸린 인화지) */
+  PreviewLead?: ComponentType;
+  /** 미리보기 틀 안쪽 가장자리 장식 (C: 마스킹 테이프) */
+  FrameDecor?: ComponentType;
   /** 비교 경계선 손잡이 */
   CompareHandle: ComponentType;
   /** 미리보기 아래 프리셋 정보 줄 (B: LCD) */
@@ -44,6 +56,8 @@ export interface ThemeKit {
   GimmickArt?: ComponentType<{ on: boolean }>;
   /** 흑백 필터 버튼 안의 견본 (B: 렌즈 필터 유리) */
   MonoSwatch?: ComponentType<{ filter: MonoChoice }>;
+  /** 조절판 아래 저장 카드의 장식. 있으면 저장 카드를 보여 줌 (A: 인화지, C: 인화기 출구) */
+  SaveCardArt?: ComponentType;
 }
 
 export const ThemeContext = createContext<ThemeKit | null>(null);

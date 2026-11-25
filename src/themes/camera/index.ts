@@ -18,6 +18,7 @@ import './tokens.css';
 import './theme.css';
 
 export const camera: ThemeKit = {
+  name: 'camera',
   copy,
   Brand,
   HeaderCenter: FrameCounter,

@@ -1,0 +1,52 @@
+/* A 암실 테마 토큰 (design/DESIGN.md 4.3) */
+:root {
+  /* 테마 전환 메뉴의 견본 (모든 테마에서 보이므로 전역) */
+  --swatch-darkroom: radial-gradient(circle at 50% 40%, #ff6a4f, #ff2a14 55%, #5a0c06);
+}
+
+:root[data-theme='darkroom'] {
+  --color-bg: #0c0707;
+  --color-surface: #170d0c;
+  --color-surface-2: #1f1110;
+  --color-line: #3d201c;
+  --color-ink: #f6e4df;
+  --color-muted: #cfa9a2;
+  --color-accent: #ff4b3a;
+  --color-on-accent: #1a0806;
+  --color-highlight: #ffb35c;
+  --color-glow: rgba(255, 40, 20, 0.3);
+  --color-preview-mat: #000000;
+  --font-display: 'Nanum Myeongjo', 'IBM Plex Sans KR', serif;
+  --font-body: 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --radius-s: 6px;
+  --radius-m: 10px;
+  --radius-l: 18px;
+  --shadow-card: inset 0 0 60px rgba(0, 0, 0, 0.6);
+  --border-width: 1px;
+
+  /* 일러스트 전용 */
+  --art-lamp-cap: #3a2a28;
+  --art-lamp-shade: #2b1d1b;
+  --art-lamp-rim: #5a3a36;
+  --art-paper: #e8e0d4;
+  --art-peg: #8b6a3e;
+  --art-sheet: #050303;
+  --art-gel-yellow: rgba(255, 214, 64, 0.8);
+  --art-gel-red: rgba(230, 52, 40, 0.85);
+  --art-gel-green: rgba(70, 170, 90, 0.85);
+}
+
+/* 기믹: 작업등을 켜면 붉은 안전등 대신 중성 회색 조명 (design/DESIGN.md 4.3 ‘A 작업등 켜짐’) */
+:root[data-theme='darkroom'][data-gimmick='on'] {
+  --color-bg: #18181a;
+  --color-surface: #222225;
+  --color-surface-2: #2a2a2e;
+  --color-line: #3d3d42;
+  --color-ink: #f4f4f4;
+  --color-muted: #bdbdc3;
+  --color-accent: #f0f0f0;
+  --color-on-accent: #1a1a1a;
+  --color-highlight: #e9dcb4;
+  --color-glow: rgba(255, 255, 235, 0.1);
+}

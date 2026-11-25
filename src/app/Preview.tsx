@@ -31,7 +31,7 @@ export function Preview({
   onSample,
   ...art
 }: Props) {
-  const { copy, PreviewOverlay, CompareHandle, Caption } = useTheme();
+  const { copy, PreviewOverlay, PreviewLead, FrameDecor, CompareHandle, Caption } = useTheme();
 
   // 방향키는 5%씩 (design/DESIGN.md 6.2). 끌기는 1% 단위로 부드럽게
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -44,7 +44,9 @@ export function Preview({
   return (
     // 사진 비율을 CSS에 알려 미리보기 상자를 사진 모양대로 만듦 (사진이 없으면 3:2)
     <section className="preview" style={{ '--photo-aspect': aspect } as CSSProperties}>
+      {PreviewLead && <PreviewLead />}
       <div className="preview-frame">
+        {FrameDecor && <FrameDecor />}
         <div className="preview-photo">
           {/* 사진 비율을 지키며 3:2 상자 안에 들어가는 실제 사진 영역 */}
           {/* 캔버스는 렌더러가 붙어 있어 항상 남겨 두고, 사진이 없으면 영역째 숨김 */}

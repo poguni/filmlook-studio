@@ -1,0 +1,679 @@
+/* A 암실 테마의 장식과 배치 (design/DESIGN.md 7.1). 공통 3열 배치는 ../sheet-layout.css */
+[data-theme='darkroom'] {
+  /* 헤더 + 빨랫줄 + 트레이 테두리 + 프리셋 정보 줄까지 한 화면에 (사진 우선) */
+  --sheet-chrome: 330px;
+  --frame-pad: 54px;
+}
+
+/* 화면 위쪽 가운데에서 퍼지는 붉은 빛 */
+[data-theme='darkroom'] body {
+  background-image: radial-gradient(1200px 520px at 50% -120px, var(--color-glow), transparent 70%);
+  background-repeat: no-repeat;
+  transition:
+    background-color 0.6s,
+    color 0.6s;
+}
+
+[data-theme='darkroom'] button:focus-visible,
+[data-theme='darkroom'] input:focus-visible {
+  outline-color: var(--color-highlight);
+}
+
+/* ── 헤더 ── */
+[data-theme='darkroom'] .app-header {
+  gap: 20px;
+  padding: 18px 40px;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.dr-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dr-logo {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.dr-logo-sub {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--color-muted);
+}
+
+.dr-lamp-glow {
+  animation: dr-pulse 3.6s ease-in-out infinite;
+}
+
+[data-gimmick='on'] .dr-lamp-glow {
+  opacity: 0;
+  animation: none;
+}
+
+@keyframes dr-pulse {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.32;
+  }
+}
+
+[data-theme='darkroom'] .btn-gimmick {
+  gap: 12px;
+  padding: 0 18px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-2);
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.dr-inuse {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dr-inuse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent);
+}
+
+.dr-inuse-text {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--color-ink);
+}
+
+[data-theme='darkroom'] .btn-info {
+  border: 1px solid var(--color-line);
+  color: var(--color-ink);
+}
+
+[data-theme='darkroom'] .btn-open {
+  padding: 0 20px;
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-s);
+  background: transparent;
+  font-size: 15px;
+}
+
+[data-theme='darkroom'] .btn-save {
+  padding: 0 24px;
+  border-radius: var(--radius-s);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* ── 밀착 인화: 검은 인화지 위 2열 격자 ── */
+.dr-sheet-lead h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.dr-sheet-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.dr-sheet-title span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--color-muted);
+}
+
+.dr-sheet-lead p {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* 인화지 가장자리의 세로 글씨 */
+.dr-film-edge {
+  position: absolute;
+  left: 8px;
+  bottom: 18px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--color-highlight);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+[data-theme='darkroom'] .sheet-frames {
+  padding: 16px 14px 16px 30px;
+  background: var(--art-sheet);
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+}
+
+[data-theme='darkroom'] .frame {
+  color: var(--color-muted);
+}
+
+[data-theme='darkroom'] .frame-no {
+  color: var(--color-highlight);
+}
+
+[data-theme='darkroom'] .frame[aria-pressed='true'] .frame-name {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+/* 선택은 펜슬 동그라미로 표시하므로 공통 테두리는 쓰지 않음 */
+[data-theme='darkroom'] .frame[aria-pressed='true'] .frame-thumb {
+  outline: none;
+}
+
+.dr-pencil {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  width: calc(100% + 16px);
+  height: calc(100% + 12px);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.9) rotate(-4deg);
+  transition:
+    opacity 0.25s,
+    transform 0.25s;
+}
+
+.dr-pencil path {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.frame[aria-pressed='true'] .dr-pencil {
+  opacity: 1;
+  transform: scale(1) rotate(-2deg);
+}
+
+[data-theme='darkroom'] .sheet-add {
+  color: var(--color-muted);
+}
+
+[data-theme='darkroom'] .frame-remove {
+  color: var(--color-ink);
+}
+
+/* ── 미리보기: 빨랫줄 + 현상 트레이 ── */
+.dr-line {
+  position: relative;
+  height: 64px;
+  margin: -6px 10px 6px;
+}
+
+.dr-line svg {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 30px;
+}
+
+.dr-line path {
+  fill: none;
+  stroke: var(--color-muted);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.dr-prints {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.dr-print {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: 50% 0;
+  animation: dr-swing 6s ease-in-out infinite;
+}
+
+.dr-print-1 {
+  animation-delay: -2s;
+}
+
+.dr-print-2 {
+  animation-delay: -4s;
+}
+
+.dr-print-3 {
+  animation-delay: -1s;
+}
+
+.dr-peg {
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--art-peg);
+}
+
+/* 사진 대신 인화지 질감 (실제 사진 색을 흉내 내지 않음) */
+.dr-paper {
+  width: 60px;
+  height: 40px;
+  border: 3px solid var(--art-paper);
+  background: linear-gradient(135deg, #3a3330, #8a817a 60%, #c9c0b6);
+}
+
+.dr-print-1 .dr-paper {
+  background: linear-gradient(160deg, #2a2522, #6f6761 50%, #b3aaa1);
+}
+
+.dr-print-3 .dr-paper {
+  background: linear-gradient(120deg, #1e1a18, #5f5853 55%, #a39a91);
+}
+
+@keyframes dr-swing {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+[data-theme='darkroom'] .preview-frame {
+  padding: 26px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-l);
+  box-shadow:
+    inset 0 0 0 8px var(--color-surface-2),
+    var(--shadow-card);
+}
+
+[data-theme='darkroom'] .preview-photo {
+  border-radius: 3px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme='darkroom'] .compare-line {
+  box-shadow: 0 0 12px var(--color-accent);
+}
+
+[data-theme='darkroom'] .compare-handle {
+  bottom: 50%;
+  transform: translate(-50%, 50%);
+}
+
+[data-theme='darkroom'] .preview-fit {
+  --handle-half: 22px;
+}
+
+.dr-handle {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--color-accent);
+}
+
+.dr-handle path {
+  fill: none;
+  stroke: var(--color-ink);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+[data-theme='darkroom'] .compare-tag {
+  letter-spacing: 0.5px;
+  color: #f6e4df;
+}
+
+/* 등장 효과 develop: 하얗고 흐린 상태에서 현상되듯 떠오름 (design/DESIGN.md 8장) */
+[data-theme='darkroom'] .preview-fit[data-reveal='0'] {
+  animation: dr-develop-a 3.2s ease-out both;
+}
+
+[data-theme='darkroom'] .preview-fit[data-reveal='1'] {
+  animation: dr-develop-b 3.2s ease-out both;
+}
+
+@keyframes dr-develop-a {
+  0% {
+    opacity: 0;
+    filter: brightness(2.4) contrast(0.4) blur(3px);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+@keyframes dr-develop-b {
+  0% {
+    opacity: 0;
+    filter: brightness(2.4) contrast(0.4) blur(3px);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+}
+
+.dr-caption {
+  margin: 16px 4px 0;
+}
+
+.dr-caption-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px 10px;
+}
+
+.dr-caption-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.dr-caption-name span {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.dr-caption-hint {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+/* 작업 단계 트레이 3개. 현재 단계 테두리를 강조색으로 */
+.dr-steps {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dr-steps li {
+  padding: 12px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-m);
+  background: var(--color-surface);
+  font-size: 14px;
+}
+
+.dr-steps li[aria-current='step'] {
+  border-color: var(--color-accent);
+  background: var(--color-surface-2);
+}
+
+.dr-step-tray {
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--color-highlight);
+}
+
+/* ── 조절판 ── */
+[data-theme='darkroom'] .control-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+}
+
+[data-theme='darkroom'] .controls {
+  gap: 16px;
+}
+
+/* 강도 값은 노광 타이머가 크게 보여 주므로 머리글 숫자는 숨김 (접근용 output은 그대로) */
+[data-theme='darkroom'] .controls > .control-card:first-child .control-value {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.dr-timer {
+  margin: 12px 0 10px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 6px;
+  background: var(--art-sheet);
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+}
+
+.dr-timer-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 54px;
+  line-height: 1;
+  color: var(--color-accent);
+  text-shadow: 0 0 14px var(--color-accent);
+}
+
+.dr-timer-unit {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--color-muted);
+}
+
+.dr-timer-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 눈금은 슬라이더 아래로 */
+.dr-timer-scale {
+  order: 2;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-muted);
+}
+
+[data-theme='darkroom'] .controls > .control-card:first-child {
+  display: flex;
+  flex-direction: column;
+}
+
+[data-theme='darkroom'] .controls > .control-card:first-child .dr-timer-wrap {
+  display: contents;
+}
+
+[data-theme='darkroom'] .controls > .control-card:first-child input {
+  order: 1;
+}
+
+[data-theme='darkroom'] .segmented button {
+  color: var(--color-ink);
+}
+
+/* 흑백 필터 젤 */
+[data-theme='darkroom'] .mono-choices {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+[data-theme='darkroom'] .mono-choice {
+  align-items: stretch;
+}
+
+.dr-gel {
+  display: block;
+  height: 44px;
+  border-radius: var(--radius-s);
+  transition: box-shadow 0.25s;
+}
+
+.dr-gel-none {
+  border: 1px dashed var(--color-muted);
+}
+
+.dr-gel-yellow {
+  background: var(--art-gel-yellow);
+}
+
+.dr-gel-red {
+  background: var(--art-gel-red);
+}
+
+.dr-gel-green {
+  background: var(--art-gel-green);
+}
+
+.mono-choice[aria-pressed='true'] .dr-gel {
+  box-shadow:
+    0 0 0 2px var(--color-bg),
+    0 0 0 4px var(--color-highlight);
+}
+
+/* 저장 카드: 인화지 */
+[data-theme='darkroom'] .save-card {
+  background: transparent;
+  border: 1px dashed var(--color-line);
+}
+
+.dr-paper-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--color-muted);
+}
+
+[data-theme='darkroom'] .save-card-button {
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 0 24px var(--color-glow);
+}
+
+[data-theme='darkroom'] .info-close {
+  color: var(--color-on-accent);
+}
+
+/* ── 태블릿·스마트폰 ── */
+@media (max-width: 1199px) {
+  .dr-film-edge,
+  .dr-sheet-lead p,
+  .dr-logo-sub {
+    display: none;
+  }
+
+  [data-theme='darkroom'] .sheet-frames {
+    padding: 16px 14px;
+  }
+
+  [data-theme='darkroom'] .app-header {
+    padding: 14px 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-theme='darkroom'] {
+    --frame-pad: 32px;
+  }
+
+  .dr-logo {
+    font-size: 21px;
+    white-space: nowrap;
+  }
+
+  .dr-brand svg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .dr-brand {
+    gap: 10px;
+  }
+
+  .dr-line {
+    height: 52px;
+  }
+
+  .dr-paper {
+    width: 46px;
+    height: 30px;
+  }
+
+  [data-theme='darkroom'] .preview-frame {
+    padding: 14px;
+    border-radius: 14px;
+    box-shadow:
+      inset 0 0 0 5px var(--color-surface-2),
+      var(--shadow-card);
+  }
+
+  .dr-caption-name {
+    font-size: 18px;
+  }
+
+  .dr-caption-hint,
+  .dr-steps {
+    display: none;
+  }
+
+  .dr-timer-value {
+    font-size: 40px;
+  }
+
+  [data-theme='darkroom'] .btn-gimmick {
+    padding: 0 16px;
+  }
+
+  .dr-inuse-text {
+    display: none;
+  }
+
+  [data-theme='darkroom'] .btn-open,
+  [data-theme='darkroom'] .btn-save {
+    min-height: 52px;
+  }
+}

@@ -63,6 +63,13 @@ export interface Copy {
   'info.hdr': string;
   'info.fonts': string;
   'info.close': string;
+  /** 테마 전환 버튼의 접근 이름과 이 테마의 이름 (PRD O-02) */
+  'theme.label': string;
+  'theme.name': string;
+  /** 밀착 인화 칸의 프레임 번호 표기. {no}에 00~09 */
+  'frame.no': string;
+  /** 조절판 저장 카드의 버튼 (헤더 저장과 같은 동작) */
+  'save.card': string;
 }
 
 export function fill(template: string, values: Record<string, string | number>): string {

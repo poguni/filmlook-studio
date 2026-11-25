@@ -67,7 +67,7 @@ export function ContactSheet({ frames, selected, thumbs, onSelect, onAddLut, onR
               {FrameMark && <FrameMark />}
               <Thumb bitmap={thumbs.get(f.code)} />
               <span className="frame-no">
-                {f.no} ▸ {f.code}
+                {fill(copy['frame.no'], { no: f.no })} ▸ {f.code}
               </span>
               <span className="frame-name">{f.name}</span>
             </button>,

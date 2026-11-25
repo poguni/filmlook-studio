@@ -1,5 +1,6 @@
 import { fill } from '../themes/copy';
-import { useTheme, type PresetView } from '../themes/kit';
+import { useTheme, type PresetView, type ThemeName } from '../themes/kit';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 interface Props {
   preset: PresetView;
@@ -13,6 +14,8 @@ interface Props {
   gimmick: boolean;
   onGimmick: () => void;
   onInfo: () => void;
+  theme: ThemeName;
+  onTheme: (theme: ThemeName) => void;
   onOpen: () => void;
   onSave: () => void;
 }
@@ -59,6 +62,7 @@ export function Header(p: Props) {
             />
           </svg>
         </button>
+        <ThemeSwitcher theme={p.theme} onTheme={p.onTheme} />
       </div>
       {/* 스마트폰에서는 화면 아래에 고정되는 동작 줄 (design/DESIGN.md 3.2) */}
       <div className="app-actions">

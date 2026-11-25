@@ -6,6 +6,13 @@
     <meta name="description" content="사진 한 장에 필름 색감을 입혀 보는 웹 편집기" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>색감 사진관 · FilmLook Studio</title>
+    <script>
+      // 마지막으로 고른 테마를 첫 화면부터 적용해 깜빡임을 막음 (PRD O-05)
+      try {
+        var t = localStorage.getItem('filmlook.theme');
+        if (t === 'darkroom' || t === 'pastel') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

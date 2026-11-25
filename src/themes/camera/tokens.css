@@ -58,3 +58,8 @@
   --art-glass-green: rgba(70, 165, 85, 0.8);
   --art-glass-green-ink: #000000;
 }
+
+/* 테마 전환 메뉴의 견본 (모든 테마에서 보이므로 전역) */
+:root {
+  --swatch-camera: radial-gradient(circle at 50% 50%, #ff7a1a 0 34%, #c9c7c0 36% 100%);
+}

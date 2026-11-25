@@ -13,14 +13,18 @@ interface Props {
   /** 흑백 프리셋(M07)을 골랐을 때만 흑백 필터를 고를 수 있음 (PRD E-08) */
   monoEnabled: boolean;
   onMono: (value: MonoChoice) => void;
+  /** 저장 카드 (테마에 SaveCardArt가 있을 때만). 헤더 저장 버튼과 같은 동작 */
+  saveInfo: string;
+  saveLabel: string;
+  canSave: boolean;
+  onSave: () => void;
 }
 
 const MONO_CHOICES: MonoChoice[] = ['none', ...MONO_FILTERS];
 const GRAIN_SIZES: GrainSize[] = ['small', 'large'];
 
-// 저장 카드(A·C 테마)는 M5에서 추가
 export function ControlPanel(p: Props) {
-  const { copy, StrengthArt, MonoSwatch } = useTheme();
+  const { copy, StrengthArt, MonoSwatch, SaveCardArt } = useTheme();
   return (
     <section className="controls">
       <div className="control-card">
@@ -97,6 +101,21 @@ export function ControlPanel(p: Props) {
           ))}
         </div>
       </fieldset>
+
+      {SaveCardArt && (
+        <div className="control-card save-card">
+          <SaveCardArt />
+          <p className="save-card-info">{p.saveInfo}</p>
+          <button
+            type="button"
+            className="save-card-button"
+            disabled={!p.canSave}
+            onClick={p.onSave}
+          >
+            {p.saveLabel}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
