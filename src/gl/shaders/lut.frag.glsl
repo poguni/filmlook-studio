@@ -16,12 +16,17 @@ uniform float u_grainCell;
 // 이 렌더 타깃(타일)의 왼쪽 위가 전체 사진에서 놓이는 위치(픽셀). 입자를 사진 좌표로 만들어 타일 이음매를 없앰 (PRD 6.3)
 uniform vec2 u_offset;
 uniform float u_height;
+// 비네팅 양(0~1, 0이면 없음)과 사진 전체 크기(이 렌더 타깃의 픽셀 단위). 타일·확대 화면에서도 사진 전체 기준으로 어둡게 함 (PRD E-06)
+uniform float u_vignette;
+uniform vec2 u_imageSize;
 
 in vec2 v_uv;
 out vec4 outColor;
 
 // 입자 최대 진폭 (sRGB 값). 양 100일 때 약 ±30/255
 const float GRAIN_AMP = 0.12;
+// 비네팅 양 100일 때 네 귀퉁이의 밝기를 이만큼 줄임
+const float VIGNETTE_MAX = 0.6;
 
 // 좌표 해시: GPU마다 같은 결과가 나오도록 정수 연산만 씀 (PCG 2D)
 float hash(ivec2 p) {
@@ -52,10 +57,17 @@ void main() {
   vec3 coord = src * ((u_lutSize - 1.0) / u_lutSize) + 0.5 / u_lutSize;
   vec3 graded = texture(u_lut, coord).rgb;
   vec3 result = mix(src, graded, u_strength);
+  // 사진 좌표(위쪽이 0). gl_FragCoord는 아래쪽이 0이라 뒤집음
+  vec2 px = u_offset + vec2(gl_FragCoord.x, u_height - gl_FragCoord.y);
+
+  if (u_vignette > 0.0) {
+    // 사진 모양을 따르는 타원: 가운데 0, 네 귀퉁이 1. 렌즈처럼 선형광에서 어둡게 해 색이 탁해지지 않게 함
+    float r = length((px / u_imageSize - 0.5) * 2.0) / sqrt(2.0);
+    float fall = u_vignette * VIGNETTE_MAX * smoothstep(0.3, 1.0, r);
+    result = pow(pow(result, vec3(2.2)) * (1.0 - fall), vec3(1.0 / 2.2));
+  }
 
   if (u_grain > 0.0) {
-    // 사진 좌표(위쪽이 0). gl_FragCoord는 아래쪽이 0이라 뒤집음
-    vec2 px = u_offset + vec2(gl_FragCoord.x, u_height - gl_FragCoord.y);
     float l = dot(result, vec3(0.2126, 0.7152, 0.0722));
     // 필름처럼 중간 톤에서 가장 잘 보이고 아주 어둡거나 밝은 곳에서는 약하게
     float weight = 0.35 + 2.6 * l * (1.0 - l);

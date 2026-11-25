@@ -1,5 +1,7 @@
 import { MONO_FILTERS } from '../color/params';
+import { JPEG_QUALITIES, type JpegQuality } from '../io/save';
 import type { GrainSize, MonoChoice } from '../state/edit';
+import { fill } from '../themes/copy';
 import { useTheme } from '../themes/kit';
 import { StarIcon } from './StarIcon';
 
@@ -14,6 +16,12 @@ interface Props {
   onGrain: (value: number) => void;
   grainSize: GrainSize;
   onGrainSize: (value: GrainSize) => void;
+  /** 비네팅 양 0~100 (PRD E-06) */
+  vignette: number;
+  onVignette: (value: number) => void;
+  /** 저장 품질 (PRD S-05) */
+  quality: JpegQuality;
+  onQuality: (value: JpegQuality) => void;
   mono: MonoChoice;
   /** 흑백 프리셋(M07)을 골랐을 때만 흑백 필터를 고를 수 있음 (PRD E-08) */
   monoEnabled: boolean;
@@ -93,6 +101,24 @@ export function ControlPanel(p: Props) {
         </div>
       </div>
 
+      <div className="control-card">
+        <div className="control-head">
+          <label htmlFor="vignette">{copy.vignette}</label>
+          <output htmlFor="vignette" className="control-value">
+            {p.vignette}
+          </output>
+        </div>
+        <input
+          id="vignette"
+          type="range"
+          aria-label={copy['vignette.name']}
+          min={0}
+          max={100}
+          value={p.vignette}
+          onChange={(e) => p.onVignette(Number(e.target.value))}
+        />
+      </div>
+
       <fieldset
         className="control-card mono"
         disabled={!p.monoEnabled}
@@ -117,6 +143,26 @@ export function ControlPanel(p: Props) {
           ))}
         </div>
       </fieldset>
+
+      <div className="control-card">
+        <div className="control-head">
+          <span id="quality-title" className="control-title">
+            {copy['quality.title']}
+          </span>
+        </div>
+        <div className="segmented" role="group" aria-labelledby="quality-title">
+          {JPEG_QUALITIES.map((q) => (
+            <button
+              key={q}
+              type="button"
+              aria-pressed={p.quality === q}
+              onClick={() => p.onQuality(q)}
+            >
+              {fill(copy['quality.option'], { q })}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {SaveCardArt && (
         <div className="control-card save-card">

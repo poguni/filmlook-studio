@@ -1,7 +1,9 @@
 // JPEG 저장 (PRD S-01~S-03). 공유(S-04)는 M4에서 추가
 import { insertApp1, prepareExif } from './exif';
 
-export const JPEG_QUALITY = 0.92;
+/** 고를 수 있는 저장 품질(%) (PRD S-05). 기본 92 */
+export const JPEG_QUALITIES = [80, 92, 100] as const;
+export type JpegQuality = (typeof JPEG_QUALITIES)[number];
 
 /** `원본이름_프리셋코드.jpg` (예: DSC01234_V02.jpg) */
 export function outputName(fileName: string, code: string): string {
@@ -10,8 +12,12 @@ export function outputName(fileName: string, code: string): string {
 }
 
 /** 인코딩한 뒤 원본의 EXIF를 고쳐 끼움 (PRD 6.3 ‘EXIF 처리’) */
-export async function encodeJpeg(canvas: OffscreenCanvas, source: Uint8Array): Promise<Blob> {
-  const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: JPEG_QUALITY });
+export async function encodeJpeg(
+  canvas: OffscreenCanvas,
+  source: Uint8Array,
+  quality: JpegQuality,
+): Promise<Blob> {
+  const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: quality / 100 });
   const app1 = prepareExif(source, canvas.width, canvas.height);
   if (!app1) return blob;
   const jpeg = new Uint8Array(await blob.arrayBuffer());

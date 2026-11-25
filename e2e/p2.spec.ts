@@ -142,3 +142,68 @@ test('Ctrl+휠로 누른 자리를 확대하고, 두 번 누르면 맞춤 보기
   await page.mouse.dblclick(x, y);
   await expect.poll(() => page.evaluate(() => window.__filmlook!.zoomRegion)).toBeNull();
 });
+
+test('비네팅: 귀퉁이만 어두워지고, 강도 0%면 원본과 같고, 타일 저장과 같음 (PRD E-06)', async ({
+  page,
+}) => {
+  await openTestPhoto(page, 'vig.jpg', 600, 400);
+  await page.getByRole('slider', { name: '비네팅' }).fill('100');
+  const px = () =>
+    page.evaluate(() => {
+      const h = window.__filmlook!;
+      const r = h.readRender()!;
+      const s = h.readSource()!;
+      const at = (p: { width: number; data: Uint8Array }, x: number, y: number) =>
+        p.data[(y * p.width + x) * 4 + 1];
+      return {
+        corner: [at(r, 2, 2), at(s, 2, 2)],
+        center: [at(r, 280, 180), at(s, 280, 180)],
+      };
+    });
+  // 왼쪽 위 칸은 초록(G 160)이라 초록 채널로 비교
+  await expect.poll(async () => (await px()).corner[0]).toBeLessThan((await px()).corner[1] - 40);
+  const { center } = await px();
+  expect(Math.abs(center[0] - center[1])).toBeLessThanOrEqual(6);
+
+  // 저장과 같은 타일 경로로 그려도 사진 전체 기준으로 같은 자리가 어두워짐
+  const diff = await page.evaluate(async () => {
+    const h = window.__filmlook!;
+    const whole = h.readRender()!;
+    const tiled = (await h.renderTiled(128))!;
+    let max = 0;
+    for (let i = 0; i < whole.data.length; i++)
+      max = Math.max(max, Math.abs(whole.data[i] - tiled.data[i]));
+    return max;
+  });
+  expect(diff).toBeLessThanOrEqual(1);
+
+  await page.getByRole('slider', { name: '강도' }).fill('0');
+  await expect
+    .poll(async () => {
+      const { corner } = await px();
+      return Math.abs(corner[0] - corner[1]);
+    })
+    .toBeLessThanOrEqual(1);
+});
+
+test('저장 품질을 고르면 저장 정보와 파일 크기가 바뀜 (PRD S-05)', async ({ page }) => {
+  await openTestPhoto(page, 'q.jpg', 900, 600);
+  await page.getByRole('button', { name: 'V02 비비드 슬라이드 선택' }).click();
+  const sizeAt = async (q: string) => {
+    await page.getByRole('button', { name: q, exact: true }).click();
+    await expect(page.getByRole('button', { name: q, exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    const downloading = page.waitForEvent('download');
+    await page.getByRole('button', { name: '저장', exact: true }).click();
+    const file = await downloading;
+    const { statSync } = await import('node:fs');
+    return statSync((await file.path())!).size;
+  };
+  await expect(page.locator('.cam-summary')).toContainText('JPEG 92% · GPS 유지');
+  const small = await sizeAt('80%');
+  await expect(page.locator('.cam-summary')).toContainText('JPEG 80% · GPS 유지');
+  const large = await sizeAt('100%');
+  expect(small).toBeLessThan(large);
+});

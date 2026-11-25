@@ -59,6 +59,9 @@ const PAN_KEYS: Partial<Record<string, [number, number]>> = {
 const clamp100 = (n: number) => Math.min(100, Math.max(0, n));
 const longSide = (w: number, h: number) => Math.max(w, h);
 
+/** 강도 0%면 입자처럼 비네팅도 넣지 않아 결과가 원본과 같음 (PRD E-02, E-06) */
+const vignetteOf = (edit: EditState) => (edit.strength === 0 ? 0 : edit.vignette / 100);
+
 /** 흑백 필터는 흑백 프리셋에서만 적용됨 (PRD E-08) */
 function effectiveMono(edit: EditState): MonoChoice {
   return findPreset(edit.preset)?.params.mono ? edit.mono : 'none';
@@ -142,7 +145,7 @@ export function App() {
     ? copy['share.hint']
     : target?.downscaled
       ? fill(copy['save.downscaled'], { mp: limitMp ?? 0 })
-      : copy['save.info'];
+      : fill(copy['save.info'], { q: edit.quality });
 
   useEffect(() => {
     if (!canvasRef.current || rendererRef.current) return;
@@ -207,8 +210,10 @@ export function App() {
         longSide(info.width, info.height),
         longSide(source.width, source.height),
       ),
-      // 입자는 원본 좌표로 만들어 확대 화면과 저장 결과의 입자가 같은 자리에 생김
+      vignette: vignetteOf(edit),
+      // 입자·비네팅은 원본 좌표로 만들어 확대 화면과 저장 결과에서 같은 자리에 생김
       offset: region && fullBitmap ? [region.sx, region.sy] : undefined,
+      imageSize: region && fullBitmap ? [fullBitmap.width, fullBitmap.height] : undefined,
     });
   }, [photo, edit, userLut, holding, region, fullBitmap]);
 
@@ -325,6 +330,7 @@ export function App() {
             longSide(info.width, info.height),
             longSide(preview.width, preview.height),
           ),
+          vignette: vignetteOf(edit),
           tileSize,
         });
         return canvasPixels(out);
@@ -426,12 +432,13 @@ export function App() {
           longSide(info.width, info.height),
           longSide(full.width, full.height),
         ),
+        vignette: vignetteOf(edit),
         // 인코딩 시간까지 고려해 렌더링은 90%까지만 채움
         onProgress: (done, total) => setSaving(Math.round((done / total) * 90)),
       });
       full.close();
       setSaving(95);
-      const blob = await encodeJpeg(out, source);
+      const blob = await encodeJpeg(out, source, edit.quality);
       const name = outputName(photo.name, edit.preset);
       // 공유 시트는 방금 누른 동작에서만 열리므로, 스마트폰은 한 번 더 누르게 함 (PRD S-04)
       if (canShareFiles())
@@ -613,6 +620,10 @@ export function App() {
             onGrain={(grain) => setEdit((s) => ({ ...s, grain }))}
             grainSize={edit.grainSize}
             onGrainSize={(grainSize) => setEdit((s) => ({ ...s, grainSize }))}
+            vignette={edit.vignette}
+            onVignette={(vignette) => setEdit((s) => ({ ...s, vignette }))}
+            quality={edit.quality}
+            onQuality={(quality) => setEdit((s) => ({ ...s, quality }))}
             mono={edit.mono}
             monoEnabled={findPreset(edit.preset)?.params.mono != null}
             onMono={(m) => setEdit((s) => ({ ...s, mono: m }))}

@@ -1,4 +1,5 @@
 // 마지막으로 쓴 편집 값을 브라우저에 기억 (PRD O-01). 사진과 비교 위치는 기억하지 않음
+import { JPEG_QUALITIES } from '../io/save';
 import { DEFAULT_EDIT, USER_LUT, type EditState, type PresetCode } from './edit';
 
 export const EDIT_STORAGE_KEY = 'filmlook.edit';
@@ -30,6 +31,8 @@ export function parseSavedEdit(raw: string | null): EditState {
     grainSize: v.grainSize === 'large' ? 'large' : 'small',
     mono:
       typeof v.mono === 'string' && MONOS.includes(v.mono) ? (v.mono as EditState['mono']) : 'none',
+    vignette: percent(v.vignette, DEFAULT_EDIT.vignette),
+    quality: JPEG_QUALITIES.find((q) => q === v.quality) ?? DEFAULT_EDIT.quality,
   };
 }
 
@@ -41,11 +44,19 @@ export function savedEdit(): EditState {
   }
 }
 
-export function saveEdit({ preset, strength, grain, grainSize, mono }: EditState): void {
+export function saveEdit({
+  preset,
+  strength,
+  grain,
+  grainSize,
+  mono,
+  vignette,
+  quality,
+}: EditState): void {
   try {
     localStorage.setItem(
       EDIT_STORAGE_KEY,
-      JSON.stringify({ preset, strength, grain, grainSize, mono }),
+      JSON.stringify({ preset, strength, grain, grainSize, mono, vignette, quality }),
     );
   } catch {
     // 저장이 막혀도 이번 화면에서는 그대로 씀

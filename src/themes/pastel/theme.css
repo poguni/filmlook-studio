@@ -571,6 +571,7 @@
 }
 
 [data-theme='pastel'] .control-head label,
+[data-theme='pastel'] .control-title,
 [data-theme='pastel'] .mono legend > span:first-child {
   font-family: var(--font-display);
   font-size: 20px;

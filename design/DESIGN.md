@@ -2,8 +2,8 @@
 
 | 항목 | 내용 |
 |---|---|
-| 문서 버전 | v1.9 (2026-11-25) |
-| 변경 내용 | v1.9: P2 구현 반영. 별표 토글과 칸의 별표 표시, 100% 확대 버튼과 사진 위 버튼 줄, 확대 중 조작, 문구 키 `star.toggle`·`frame.starred`·`zoom.*`, 테마 CSS의 카드 순서 선택자. v1.8: M5 구현 반영. A 암실·C 파스텔 테마와 테마 전환 메뉴, 테마 버튼 위치를 헤더 도구 줄 끝으로, A·C 배치(사진 우선, 저장 카드), 문구 키 `theme.*`·`frame.no`·`save.card`, A·C 대비 값, B 스마트폰 프레임 카운터 숨김. v1.7: B 테마 헤더를 화면 위에 고정(스크롤해도 셔터가 보임). v1.6: 사진 우선 배치. B 테마는 사진과 LCD 줄이 한 화면에 들어가도록 사진을 키우고 필름 스트립은 스크롤해서 보게 함, 1399px 이하에서 왼쪽 장식 열 숨김, 미리보기 상자를 사진 비율로, LCD 줄 한 줄 고정, 태블릿 헤더 보조 글자 숨김. v1.5: M4 구현 반영. 시안에 없는 요소(원본 보기 버튼, 앱 정보, 샘플 버튼, LUT 장전 칸, 사용자 LUT 빼기 버튼)의 위치와 모양(6.8), 기믹 문구 키 분리, M4 문구 키 추가, 등장 효과 다시 틀기 방식, 스크린숏 추가. v1.4: M3 구현 반영. 상태 `grainSize` 추가, 입자·흑백 필터 문구 키, `save.info`를 표 문구로 확정, `save.downscaled` 사용, B 테마 렌즈 필터 유리 대비(초록 글자 `#000000`로 교체), 1440×900 높이에 맞춘 B 조절판 배치. v1.3: M2 구현 반영. B 테마 일러스트 토큰, 문구 키(`strength.name`, `compare.label`, `sheet.label`, `error.save`) 추가, M3 전까지 `save.info` 임시 문구. v1.2: M1에서 쓰는 문구 키(`drop.hint`, `frame.label`, `error.*`, `icc.adobeRgb`) 추가. v1.1: PRD v1.4 반영. 기본값과 사용자 LUT 칸(`U01`), B 테마 높이 제한, 두 단계 공유, 단축키 포커스 규칙, C 테마 `--color-highlight` 대비 수정, 파일 경로 정정 |
+| 문서 버전 | v1.10 (2026-11-25) |
+| 변경 내용 | v1.10: 비네팅 슬라이더와 저장 품질 버튼 묶음, 상태 `vignette`·`quality`, 문구 키 `vignette`·`quality.*`, `save.info`의 `{q}`. v1.9: P2 구현 반영. 별표 토글과 칸의 별표 표시, 100% 확대 버튼과 사진 위 버튼 줄, 확대 중 조작, 문구 키 `star.toggle`·`frame.starred`·`zoom.*`, 테마 CSS의 카드 순서 선택자. v1.8: M5 구현 반영. A 암실·C 파스텔 테마와 테마 전환 메뉴, 테마 버튼 위치를 헤더 도구 줄 끝으로, A·C 배치(사진 우선, 저장 카드), 문구 키 `theme.*`·`frame.no`·`save.card`, A·C 대비 값, B 스마트폰 프레임 카운터 숨김. v1.7: B 테마 헤더를 화면 위에 고정(스크롤해도 셔터가 보임). v1.6: 사진 우선 배치. B 테마는 사진과 LCD 줄이 한 화면에 들어가도록 사진을 키우고 필름 스트립은 스크롤해서 보게 함, 1399px 이하에서 왼쪽 장식 열 숨김, 미리보기 상자를 사진 비율로, LCD 줄 한 줄 고정, 태블릿 헤더 보조 글자 숨김. v1.5: M4 구현 반영. 시안에 없는 요소(원본 보기 버튼, 앱 정보, 샘플 버튼, LUT 장전 칸, 사용자 LUT 빼기 버튼)의 위치와 모양(6.8), 기믹 문구 키 분리, M4 문구 키 추가, 등장 효과 다시 틀기 방식, 스크린숏 추가. v1.4: M3 구현 반영. 상태 `grainSize` 추가, 입자·흑백 필터 문구 키, `save.info`를 표 문구로 확정, `save.downscaled` 사용, B 테마 렌즈 필터 유리 대비(초록 글자 `#000000`로 교체), 1440×900 높이에 맞춘 B 조절판 배치. v1.3: M2 구현 반영. B 테마 일러스트 토큰, 문구 키(`strength.name`, `compare.label`, `sheet.label`, `error.save`) 추가, M3 전까지 `save.info` 임시 문구. v1.2: M1에서 쓰는 문구 키(`drop.hint`, `frame.label`, `error.*`, `icc.adobeRgb`) 추가. v1.1: PRD v1.4 반영. 기본값과 사용자 LUT 칸(`U01`), B 테마 높이 제한, 두 단계 공유, 단축키 포커스 규칙, C 테마 `--color-highlight` 대비 수정, 파일 경로 정정 |
 | 기준 시안 | `design/mockups/색감사진관-시안A-darkroom.html`, `색감사진관-시안B-camera.html`, `색감사진관-시안C-pastel.html` |
 | 관련 문서 | `docs/FilmLook Studio PRD.md` v1.4 (기능 요구 사항), `CLAUDE.md` (개발 규칙) |
 
@@ -76,12 +76,14 @@
 | `grain` | 0~100 | 프리셋의 `defaultGrain` | 입자 양. 프리셋을 고를 때마다 그 프리셋의 기본값으로 바뀜(M07은 25, 나머지·원본·`U01`은 0) |
 | `grainSize` | `small`, `large` | `small` | 입자 크기(PRD E-05). 프리셋을 바꿔도 유지 |
 | `mono` | `none`, `yellow`, `red`, `green` | `none` | 흑백 필터. `preset`이 `M07`일 때만 활성 |
+| `vignette` | 0~100 | 0 | 비네팅 양(PRD E-06). 프리셋을 바꿔도 유지. 강도 0이면 넣지 않음 |
+| `quality` | 80, 92, 100 | 92 | 저장 JPEG 품질(%)(PRD S-05) |
 | `gimmick` | true / false | false | 테마 기믹 켜짐 여부. 테마를 바꾸면 false로 초기화 |
 | `theme` | `darkroom`, `camera`, `pastel` | `camera` | 현재 테마. 브라우저에 기억 |
 | `starred` | 칸 코드의 집합 | 비어 있음 | 별표를 단 칸(PRD C-05). 새 사진을 열면 비움 |
 | `zoom` | 사진 안 위치(0~1) 또는 없음 | 없음 | 100% 확대 중 화면 가운데에 오는 사진 위치(PRD E-07). 없으면 맞춤 보기. 새 사진을 열면 맞춤 보기 |
 
-`preset`·`strength`·`grain`·`grainSize`·`mono`는 브라우저에 기억합니다(PRD O-01). `compare`·`starred`·`zoom`은 기억하지 않습니다.
+`preset`·`strength`·`grain`·`grainSize`·`mono`·`vignette`·`quality`는 브라우저에 기억합니다(PRD O-01). `compare`·`starred`·`zoom`은 기억하지 않습니다.
 
 시안 코드의 `cmp`, `gim`, `mono: 'N'|'Y'|'R'|'G'`는 위 이름으로 바꿔 구현합니다.
 
@@ -196,7 +198,7 @@ C 테마 전용 추가 토큰: 카드 색 `--pastel-mint: #c6efdf`, `--pastel-bu
 | `compare.hint` | 사진 위를 좌우로 끌면 원본과 비교됩니다 | 사진을 좌우로 끌어 비교 | 곰돌이를 좌우로 밀어 비교해 보세요 |
 | `gimmick.label` | 작업등 | 뷰파인더 격자선 | 반짝이 |
 | `gimmick.on` / `gimmick.off` | 작업등 켜짐 / 꺼짐 | 격자선 켜짐 / 꺼짐 | 반짝이 켜짐 / 꺼짐 |
-| `save.info` | JPEG 92% · 원본 해상도 · EXIF·GPS 유지 | JPEG 92% · GPS 유지 | JPEG 92% · 원본 크기 · 위치 정보 그대로 |
+| `save.info` | JPEG {q}% · 원본 해상도 · EXIF·GPS 유지 | JPEG {q}% · GPS 유지 | JPEG {q}% · 원본 크기 · 위치 정보 그대로 |
 | `save.progress` | 인화 중… {n}% | 현상 중… {n}% | 사진 뽑는 중… {n}% |
 | `share` | 공유하기 | 공유 · SHARE | 공유하기 |
 | `share.hint` | 인화가 끝났습니다. 공유하기를 눌러 보내세요 | 저장 완료 · 공유를 눌러 보내기 | 다 뽑혔어요! 공유하기를 눌러 주세요 |
@@ -217,6 +219,9 @@ C 테마 전용 추가 토큰: 카드 색 `--pastel-mint: #c6efdf`, `--pastel-bu
 | `theme.name` | 암실 | 카메라 기어 | 파스텔 사진관 |
 | `save.card` | 인화하기 | 저장 (B는 저장 카드 없음) | 사진 뽑기 |
 | `star.toggle` | 후보에 별표 | 별표 | 찜하기 |
+| `vignette` | 비네팅 · 가장자리 버닝 | 비네팅 · VIGNETTE | 포근 비네팅 |
+| `quality.title` | 인화 품질 | 저장 품질 · QUALITY | 사진 품질 |
+| `quality.option` | {q}% | {q}% | {q}% |
 | `frame.starred` | {label}, 별표 | {label}, 별표 | {label}, 별표 |
 | `zoom.toggle` | 100% 확대 | 100% 확대 | 100% 확대 |
 | `zoom.loading` | 확대 준비 중… | 확대 준비 중… | 확대 준비 중… |
@@ -239,7 +244,7 @@ C 테마 전용 추가 토큰: 카드 색 `--pastel-mint: #c6efdf`, `--pastel-bu
 - `mono.items`는 구현에서 `mono.none`·`mono.yellow`·`mono.red`·`mono.green` 네 키로 나눕니다. B 테마 유리에 새긴 Y2·R25·G11은 장식이라 문구 키가 아니라 장식 컴포넌트(`MonoSwatch` slot)에 둡니다.
 - `grain.name`은 입자 슬라이더의 접근 이름입니다(`strength.name`과 같은 규칙).
 - 기믹 버튼의 접근 이름은 `gimmick.label`이고 켜짐 여부는 `aria-pressed`로 알립니다. 화면에 보이는 `gimmick.on`/`off`는 장식이라 읽지 않게 둡니다.
-- `save.info`는 M3에서 EXIF·GPS 보존(PRD S-03)을 넣으며 위 표의 문구로 확정했습니다. 스마트폰 상한에 걸리는 사진이면 같은 자리에 `save.downscaled`를 보여 줍니다.
+- `save.info`는 M3에서 EXIF·GPS 보존(PRD S-03)을 넣으며 위 표의 문구로 확정했습니다. 스마트폰 상한에 걸리는 사진이면 같은 자리에 `save.downscaled`를 보여 줍니다. `{q}`에는 고른 저장 품질(PRD S-05)이 들어갑니다.
 
 - 프리셋 이름(데일리, 비비드 슬라이드 …)과 코드는 테마와 무관하게 같습니다. 스마트폰의 좁은 칸에서는 C 테마만 짧은 이름(비비드, 소프트, 시네마, 모노)을 씁니다.
 - 영어 보조 표기(EXPOSURE TIMER 등)는 장식이므로 `aria-hidden`이 아니라 일반 텍스트로 두되, 화면 읽기 프로그램용 이름은 한국어 기본 이름(강도, 입자)으로 지정합니다.
@@ -278,6 +283,9 @@ C 테마 전용 추가 토큰: 카드 색 `--pastel-mint: #c6efdf`, `--pastel-bu
 
 - 강도·입자는 `<input type="range">` + `<label>` + 현재 값 표시입니다. 값 표시는 슬라이더 옆이나 위에 항상 보입니다.
 - 슬라이더 색은 `accent-color: var(--color-accent)`로 지정합니다. 트랙 높이 28~30px로 터치하기 쉽게 합니다.
+- **조절판 순서 (v1.10):** 별표 토글 → 강도 → 입자 → 비네팅 → 흑백 필터 → 저장 품질 → (A·C) 저장 카드.
+- 비네팅은 강도·입자와 같은 슬라이더 카드입니다(접근 이름 `vignette.name` “비네팅”).
+- 저장 품질은 `80%`·`92%`·`100%` 세 버튼(`aria-pressed`)의 묶음이고, 제목(`quality.title`)은 다른 카드 제목과 같은 글자 모양(`.control-title`)입니다. 고른 값은 저장 정보 문구의 `{q}`에 들어갑니다.
 - 흑백 필터(`MonoFilterPicker`)는 4개 버튼입니다. `preset`이 `M07`이 아니면 묶음 전체를 `opacity: .35~.4`, `aria-disabled="true"`로 두고 안내 문구(`mono.disabled`)를 보여 줍니다. 실제 `disabled` 속성도 함께 줍니다.
 
 ### 6.5 저장 (`SaveButton`, `SaveCard`)

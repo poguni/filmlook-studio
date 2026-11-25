@@ -32,6 +32,10 @@ export interface RenderOptions {
   grain?: GrainSettings;
   /** 타일 렌더링에서 이 타일의 왼쪽 위가 전체 사진에서 놓이는 위치(픽셀) */
   offset?: [number, number];
+  /** 비네팅 양 0~1 (PRD E-06) */
+  vignette?: number;
+  /** 사진 전체 크기(이 렌더 타깃의 픽셀). 타일·확대에서 비네팅 중심을 맞추려고 씀. 없으면 렌더 타깃 크기 */
+  imageSize?: [number, number];
 }
 
 export class Renderer {
@@ -46,6 +50,8 @@ export class Renderer {
   private readonly uGrainCell: WebGLUniformLocation | null;
   private readonly uOffset: WebGLUniformLocation | null;
   private readonly uHeight: WebGLUniformLocation | null;
+  private readonly uVignette: WebGLUniformLocation | null;
+  private readonly uImageSize: WebGLUniformLocation | null;
   private last: RenderOptions = { strength: 0 };
   private hasImage = false;
 
@@ -55,7 +61,8 @@ export class Renderer {
       alpha: false,
       antialias: false,
       premultipliedAlpha: false,
-    });
+      // 두 캔버스 종류를 함께 받으면 TS가 반환 타입을 넓게 잡는 경우가 있어 webgl2로 고정
+    }) as WebGL2RenderingContext | null;
     return gl ? new Renderer(gl) : null;
   }
 
@@ -79,6 +86,8 @@ export class Renderer {
     this.uGrainCell = gl.getUniformLocation(program, 'u_grainCell');
     this.uOffset = gl.getUniformLocation(program, 'u_offset');
     this.uHeight = gl.getUniformLocation(program, 'u_height');
+    this.uVignette = gl.getUniformLocation(program, 'u_vignette');
+    this.uImageSize = gl.getUniformLocation(program, 'u_imageSize');
 
     this.imageTex = this.createTexture(gl.TEXTURE_2D, 0);
     this.lutTex = this.createTexture(gl.TEXTURE_3D, 1);
@@ -146,6 +155,9 @@ export class Renderer {
     gl.uniform1f(this.uGrainCell, Math.max(1, grain.cell));
     gl.uniform2f(this.uOffset, ox, oy);
     gl.uniform1f(this.uHeight, gl.drawingBufferHeight);
+    gl.uniform1f(this.uVignette, opts.vignette ?? 0);
+    const [iw, ih] = opts.imageSize ?? [gl.drawingBufferWidth, gl.drawingBufferHeight];
+    gl.uniform2f(this.uImageSize, iw, ih);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 

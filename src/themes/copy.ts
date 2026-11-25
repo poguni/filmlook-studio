@@ -4,6 +4,7 @@ export interface Copy {
   save: string;
   /** {n}에 진행률(%)이 들어감 */
   'save.progress': string;
+  /** {q}에 저장 품질(%) */
   'save.info': string;
   /** 스마트폰 해상도 상한에 걸릴 때 save.info 자리에 보임. {mp}에 상한 */
   'save.downscaled': string;
@@ -16,6 +17,12 @@ export interface Copy {
   'grain.size': string;
   'grain.small': string;
   'grain.large': string;
+  /** 비네팅 (PRD E-06). name은 슬라이더의 접근 이름 */
+  vignette: string;
+  'vignette.name': string;
+  /** 저장 품질 (PRD S-05). option의 {q}에 80·92·100 */
+  'quality.title': string;
+  'quality.option': string;
   'mono.title': string;
   /** 흑백 프리셋이 아닐 때 보이는 안내 */
   'mono.disabled': string;

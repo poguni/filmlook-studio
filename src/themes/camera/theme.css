@@ -441,7 +441,8 @@
   border-radius: var(--radius-m);
 }
 
-[data-theme='camera'] .control-head label {
+[data-theme='camera'] .control-head label,
+[data-theme='camera'] .control-title {
   font-size: 15px;
   font-weight: 700;
 }

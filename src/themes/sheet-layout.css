@@ -70,6 +70,7 @@
 }
 
 :is([data-theme='darkroom'], [data-theme='pastel']) .control-head label,
+:is([data-theme='darkroom'], [data-theme='pastel']) .control-title,
 :is([data-theme='darkroom'], [data-theme='pastel']) .mono legend > span:first-child {
   font-size: 15px;
   font-weight: 700;

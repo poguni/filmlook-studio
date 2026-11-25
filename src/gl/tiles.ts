@@ -10,6 +10,8 @@ export interface TileOptions {
   strength: number; // 0~1
   /** cell은 source 픽셀 단위 */
   grain?: GrainSettings;
+  /** 비네팅 양 0~1 (PRD E-06) */
+  vignette?: number;
   tileSize?: number;
   onProgress?: (done: number, total: number) => void;
 }
@@ -50,7 +52,13 @@ export async function renderTiled(
       pieceCtx.drawImage(source, sx, sy, sw, sh, 0, 0, sw, sh);
       renderer.setImage(piece);
       // 입자는 타일이 아닌 사진 좌표로 만들어 이음매가 생기지 않게 함
-      renderer.render({ strength, grain: opts.grain, offset: [sx, sy] });
+      renderer.render({
+        strength,
+        grain: opts.grain,
+        vignette: opts.vignette,
+        offset: [sx, sy],
+        imageSize: [source.width, source.height],
+      });
       // 같은 작업 안에서 바로 옮겨 그려야 WebGL 버퍼가 비워지기 전에 읽힘
       ctx.drawImage(canvas, sx, sy);
       done++;

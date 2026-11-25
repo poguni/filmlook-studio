@@ -3,13 +3,15 @@ import { DEFAULT_EDIT } from './edit';
 import { parseSavedEdit } from './remember';
 
 describe('parseSavedEdit (PRD O-01)', () => {
-  it('저장한 프리셋·강도·입자·흑백 필터를 되살리고 비교 위치는 0', () => {
+  it('저장한 프리셋·강도·입자·흑백 필터·비네팅·품질을 되살리고 비교 위치는 0', () => {
     const raw = JSON.stringify({
       preset: 'M07',
       strength: 40,
       grain: 60,
       grainSize: 'large',
       mono: 'red',
+      vignette: 35,
+      quality: 100,
       compare: 70,
     });
     expect(parseSavedEdit(raw)).toEqual({
@@ -19,6 +21,8 @@ describe('parseSavedEdit (PRD O-01)', () => {
       grain: 60,
       grainSize: 'large',
       mono: 'red',
+      vignette: 35,
+      quality: 100,
     });
   });
 
@@ -36,6 +40,8 @@ describe('parseSavedEdit (PRD O-01)', () => {
       grain: -3,
       grainSize: 'huge',
       mono: 'blue',
+      vignette: 101,
+      quality: 85,
     });
     expect(parseSavedEdit(raw)).toEqual({ ...DEFAULT_EDIT, preset: 'V02' });
   });
