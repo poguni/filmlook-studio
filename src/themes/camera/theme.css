@@ -7,6 +7,10 @@
 
 /* ── 헤더: 금속 상판 ── */
 [data-theme='camera'] .app-header {
+  /* 스크롤해도 셔터(저장)·사진 넣기가 늘 보이도록 위에 고정 (design/DESIGN.md 7.2) */
+  position: sticky;
+  top: 0;
+  z-index: 2;
   gap: 22px;
   padding: 16px 40px;
   background: var(--plate-metal);

@@ -68,7 +68,7 @@ filmlook-studio/
 
 - 처음 받은 뒤에는 `npm install`과 `npx playwright install chromium`을 한 번 실행합니다.
 - e2e는 개발 서버(5174 포트)에서만 열리는 검사용 창구 `window.__filmlook`(`src/app/devHook.ts`)으로 렌더 결과를 픽셀 단위로 비교합니다. 배포 빌드에는 들어가지 않습니다.
-- 개발 서버 전용 기능(배포 빌드에서 빠짐): 프리셋 튜닝 화면 `/filmlook-studio/tuning`(PRD 7장, 문구는 `src/tuning/`에 둠), 저장 해상도 상한을 바꾸는 주소 값 `?cap=50`(`?cap=0`은 상한 없음)과 저장 시간 표시(PRD 6.3 실기기 측정용).
+- 개발 서버 전용 기능(배포 빌드에서 빠짐): 프리셋 튜닝 화면 `/filmlook-studio/tuning`(PRD 7장, 문구는 `src/tuning/`에 둠), 저장 해상도 상한을 바꾸는 주소 값 `?cap=50`(`?cap=0`은 상한 없음, PRD 6.3).
 - `e2e/large.spec.ts`는 61MP 저장을 확인하므로 다른 테스트보다 오래 걸립니다.
 - 테스트용 JPEG는 `e2e/fixtures.ts`가 즉석에서 만듭니다. 사진 파일을 테스트용으로 커밋하지 않습니다.
 

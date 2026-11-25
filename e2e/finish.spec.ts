@@ -164,3 +164,17 @@ test('앱 정보에 비제휴 고지가 있고 Esc로 닫힘 (PRD 5.1, 부록 B)
   await dialog.getByRole('button', { name: '닫기' }).click();
   await expect(dialog).toBeHidden();
 });
+
+test('일반 창에서 필름 스트립까지 내려가도 셔터(저장)가 보임', async ({ page }) => {
+  await page.setViewportSize({ width: 1288, height: 760 });
+  await page.goto('./');
+  await openTestPhoto(page, 'scroll.jpg');
+  const strip = frame(page, 'E06 시네마 소프트');
+  await strip.scrollIntoViewIfNeeded();
+  await strip.click();
+  expect(await page.evaluate(() => scrollY)).toBeGreaterThan(0);
+  await expect(page.getByRole('button', { name: '저장' })).toBeInViewport();
+  const downloading = page.waitForEvent('download');
+  await page.getByRole('button', { name: '저장' }).click();
+  expect((await downloading).suggestedFilename()).toBe('scroll_E06.jpg');
+});

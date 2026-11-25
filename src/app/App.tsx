@@ -91,8 +91,6 @@ export function App() {
   const [infoOpen, setInfoOpen] = useState(false);
   const [samples, setSamples] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
-  // 개발 서버 전용: 저장 시간·크기 (PRD 6.3)
-  const [devSaveStat, setDevSaveStat] = useState<string | null>(null);
   const [limitMp] = useState(saveLimitMp);
 
   const frames = useMemo<PresetView[]>(
@@ -263,7 +261,6 @@ export function App() {
     if (!photo || saving !== null) return;
     setError(null);
     setSaving(0);
-    const started = performance.now();
     try {
       const { info } = photo;
       const source = new Uint8Array(await photo.file.arrayBuffer());
@@ -300,10 +297,6 @@ export function App() {
       if (canShareFiles())
         setPending({ file: new File([blob], name, { type: 'image/jpeg' }), photo, edit, userLut });
       else download(blob, name);
-      if (import.meta.env.DEV) {
-        const sec = ((performance.now() - started) / 1000).toFixed(1);
-        setDevSaveStat(`[개발] 저장 ${sec}초 · ${out.width}×${out.height}`);
-      }
     } catch {
       setError(copy['error.save']);
     } finally {
@@ -406,7 +399,6 @@ export function App() {
           {!webgl2 && <p role="alert">{copy['error.noWebgl2']}</p>}
           {error && <p role="alert">{error}</p>}
           {photo && isAdobeRgb(photo.info.iccName) && <p role="status">{copy['icc.adobeRgb']}</p>}
-          {devSaveStat && <p role="status">{devSaveStat}</p>}
         </div>
 
         {/* 저장하는 동안 다른 조작을 막음 (PRD S-06) */}
