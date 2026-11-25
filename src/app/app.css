@@ -259,8 +259,9 @@ input[type='range'] {
   right: 14px;
 }
 
-/* 사진 전체를 덮는 투명한 슬라이더. 어디를 끌어도 경계선이 따라옴 */
-.compare-input {
+/* 사진 전체를 덮는 투명한 슬라이더. 어디를 끌어도 경계선이 따라옴
+   input[type='range']의 44px 높이 규칙보다 우선하도록 선택자를 구체적으로 씀 */
+input[type='range'].compare-input {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -268,6 +269,8 @@ input[type='range'] {
   margin: 0;
   opacity: 0;
   cursor: ew-resize;
+  /* 스마트폰에서 사진 위를 세로로 쓸면 페이지가 스크롤되게 함 (가로로 끌 때만 비교) */
+  touch-action: pan-y;
 }
 
 /* 투명한 슬라이더 대신 사진 둘레에 포커스 표시 */

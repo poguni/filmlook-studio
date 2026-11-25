@@ -109,3 +109,19 @@ test('Ctrl+S로도 저장 (PRD 8.1)', async ({ page }) => {
   await page.keyboard.press('Control+s');
   expect((await downloading).suggestedFilename()).toBe('shortcut_ORIG.jpg');
 });
+
+test('사진 가운데를 마우스로 끌면 비교 경계선이 따라옴 (PRD E-01)', async ({ page }) => {
+  await openTestPhoto(page);
+  const photo = (await page.locator('.preview-canvas').boundingBox())!;
+  const compare = page.getByRole('slider', { name: '원본과 결과 비교 위치' });
+  // 슬라이더가 사진 전체를 덮어야 함
+  const input = (await compare.boundingBox())!;
+  expect(input.height).toBeCloseTo(photo.height, 0);
+
+  const y = photo.y + photo.height * 0.6;
+  await page.mouse.move(photo.x + photo.width * 0.2, y);
+  await page.mouse.down();
+  for (let i = 1; i <= 10; i++) await page.mouse.move(photo.x + photo.width * (0.2 + 0.05 * i), y);
+  await page.mouse.up();
+  expect(Number(await compare.inputValue())).toBeGreaterThan(60);
+});
