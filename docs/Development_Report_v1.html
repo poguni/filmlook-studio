@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>색감 사진관 (FilmLook Studio) 개발 보고서 (v1)</title>
+<style>
+  /* 말랑(cute) 테마 — Reading Diary 앱의 디자인 토큰에서 가져옴. 모든 개발 보고서가 같은 모양을 쓴다. */
+  :root {
+    --sidebar-w: 268px;
+    --bg: #FFF3EA; --surface: #FFFFFF; --surface-2: #FFF0F3;
+    --ink: #45303C; --ink-2: #86606F; --line: #F6D9E1;
+    --primary: #CF3D67; --primary-text: #C0365E; --focus: #C0365E;
+    --radius: 24px; --radius-sm: 16px;
+    --shadow: 0 4px 0 #F6DCCF;
+    --side-active-bg: #FFE3EA; --side-active-ink: #B8325A;
+    --brand-bg: #FFD3DE; --brand-ink: #B8325A;
+    --quote-bg: #E6F8F0; --quote-line: #BFEBD8; --quote-ink: #23453A;
+    --timer-bg: #FFE7A6; --timer-line: #F5D27A;
+    --font-display: "Gowun Dodum", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --font-ui: "Pretendard Variable", "Pretendard", -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; font-family: var(--font-ui); font-size: 15px; line-height: 1.7; color: var(--ink);
+    background-color: var(--bg);
+    background-image: radial-gradient(#F6D8C8 1.3px, transparent 1.6px); background-size: 22px 22px;
+    word-break: keep-all; overflow-wrap: anywhere;
+  }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* 왼쪽 패널: 둥근 흰 카드 + 알약 모양 메뉴 */
+  nav.sidebar {
+    position: sticky; top: 16px; align-self: flex-start; width: var(--sidebar-w); flex-shrink: 0;
+    height: calc(100vh - 32px); overflow-y: auto; margin: 16px 0 16px 16px; padding: 22px 14px;
+    background: var(--surface); border: 2px solid #F8DCE4; border-radius: 28px; box-shadow: 0 5px 0 #F6DCCF;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 4px; }
+  .brand-mark { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--brand-bg); color: var(--brand-ink); flex: none; }
+  .brand-mark svg { width: 22px; height: 22px; }
+  nav.sidebar h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 18px; line-height: 1.25; }
+  nav.sidebar h1 small { display: block; font-family: var(--font-ui); font-size: 11.5px; font-weight: 700; color: var(--ink-2); }
+  nav.sidebar .meta { margin: 10px 8px 14px; padding: 6px 12px; border-radius: 999px; background: var(--timer-bg); font-size: 12px; font-weight: 700; color: #6A4A12; display: inline-block; transform: rotate(-1.5deg); }
+  nav.sidebar .links { display: flex; flex-direction: column; gap: 2px; }
+  nav.sidebar a {
+    display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 7px 12px; border-radius: 999px;
+    font-size: 13.5px; font-weight: 600; color: var(--ink); text-decoration: none;
+  }
+  nav.sidebar a .num { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--surface-2); color: var(--ink-2); font-size: 11.5px; font-weight: 800; flex: none; }
+  nav.sidebar a:hover { background: var(--surface-2); }
+  nav.sidebar a.active { background: var(--side-active-bg); color: var(--side-active-ink); }
+  nav.sidebar a.active .num { background: var(--primary); color: #fff; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .nav-toggle { display: none; }
+
+  /* 본문 */
+  main { flex: 1; min-width: 0; padding: 32px 40px 80px; max-width: 980px; }
+  .hero { position: relative; margin: 8px 0 32px; padding: 30px 32px 26px; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .hero::before { content: ""; position: absolute; top: -12px; left: 50%; width: 120px; height: 26px; margin-left: -60px; background: rgba(255,190,210,.75); transform: rotate(-4deg); border-radius: 3px; }
+  .hero h1 { margin: 0 0 12px; font-family: var(--font-display); font-weight: 400; font-size: 30px; line-height: 1.3; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 4px 12px; border-radius: 999px; background: var(--quote-bg); border: 1.5px solid var(--quote-line); color: var(--quote-ink); font-size: 13px; font-weight: 700; }
+
+  main section.card { margin-bottom: 28px; padding: 26px 30px 22px; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); scroll-margin-top: 24px; }
+  main h2 { margin: 0 0 14px; padding-bottom: 10px; font-family: var(--font-display); font-weight: 400; font-size: 23px; border-bottom: 2px dashed var(--line); }
+  main h3 { margin: 22px 0 8px; font-size: 16.5px; color: var(--primary-text); }
+  main p { margin: 10px 0; }
+  main ul, main ol { margin: 8px 0 12px; padding-left: 22px; }
+  main li { margin: 4px 0; }
+  main li::marker { color: var(--primary); }
+  main strong { color: var(--primary-text); }
+  .table-wrap { overflow-x: auto; margin: 12px 0; border: 2px solid var(--line); border-radius: var(--radius-sm); }
+  main table { border-collapse: collapse; width: 100%; }
+  main th, main td { padding: 9px 12px; font-size: 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  main th { background: var(--surface-2); font-weight: 700; white-space: nowrap; }
+  main tr:last-child td { border-bottom: 0; }
+  main td + td, main th + th { border-left: 1px solid var(--line); }
+  main code { background: var(--quote-bg); color: var(--quote-ink); padding: 1px 6px; border-radius: 6px; font-size: 0.88em; }
+  main pre { background: #FFF8E1; border: 2px solid var(--timer-line); color: var(--ink); padding: 16px 18px; border-radius: var(--radius-sm); overflow-x: auto; line-height: 1.55; box-shadow: 0 4px 0 #EFC765; }
+  main pre code { background: none; color: inherit; padding: 0; font-size: 13px; }
+  .foot { text-align: center; color: var(--ink-2); font-size: 12.5px; }
+
+  @media (max-width: 860px) {
+    .layout { flex-direction: column; }
+    nav.sidebar { position: sticky; top: 0; z-index: 5; align-self: stretch; width: auto; height: auto; max-height: 100vh; margin: 0; padding: 10px 16px; border-radius: 0 0 24px 24px; border-top: 0; }
+    .brand { padding: 0; }
+    nav.sidebar .meta { display: none; }
+    .nav-toggle { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; min-height: 44px; padding: 0 16px; border: 2px solid var(--line); border-radius: 999px; background: var(--surface-2); color: var(--ink); font: 700 13.5px var(--font-ui); cursor: pointer; }
+    nav.sidebar .links { display: none; margin-top: 10px; }
+    nav.sidebar.open .links { display: flex; }
+    main { padding: 20px 16px 60px; }
+    .hero { padding: 24px 20px 20px; }
+    .hero h1 { font-size: 24px; }
+    main section.card { padding: 20px 18px 16px; scroll-margin-top: 80px; }
+  }
+  @media print {
+    body { background: #fff; }
+    nav.sidebar { display: none; }
+    main { max-width: none; padding: 0; }
+    main section.card, .hero { box-shadow: none; break-inside: avoid-page; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="목차">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+      </span>
+      <h1>색감 사진관<small>FilmLook Studio</small></h1>
+      <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">목차</button>
+    </div>
+    <div class="meta">개발 보고서 v1 · 2026-11-25</div>
+    <div class="links" id="navLinks">
+      <a href="#sec-1"><span class="num">1</span>개요</a>
+      <a href="#sec-2"><span class="num">2</span>목표 및 배경</a>
+      <a href="#sec-3"><span class="num">3</span>주요 기능</a>
+      <a href="#sec-4"><span class="num">4</span>기술 스택 및 아키텍처</a>
+      <a href="#sec-5"><span class="num">5</span>개발 과정 (타임라인)</a>
+      <a href="#sec-6"><span class="num">6</span>주요 의사결정과 이유</a>
+      <a href="#sec-7"><span class="num">7</span>문제 해결 기록</a>
+      <a href="#sec-8"><span class="num">8</span>보안/성능 고려사항</a>
+      <a href="#sec-9"><span class="num">9</span>테스트 및 검증</a>
+      <a href="#sec-10"><span class="num">10</span>배포</a>
+      <a href="#sec-11"><span class="num">11</span>알려진 한계</a>
+      <a href="#sec-12"><span class="num">12</span>향후 개선 아이디어 / 업데이트 계획</a>
+    </div>
+  </nav>
+  <main id="content">
+    <header class="hero">
+      <h1>색감 사진관 (FilmLook Studio) 개발 보고서 (v1)</h1>
+      <div class="chips"><span class="chip">작성일: 2026-11-25</span><span class="chip">버전: v1</span></div>
+    </header>
+    <section id="sec-1" class="card">
+      <h2>1. 개요</h2>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>앱 이름</td><td>색감 사진관 (FilmLook Studio), 저장소 <code>filmlook-studio</code></td></tr><tr><td>한 줄 소개</td><td>JPEG 사진 한 장에 필름 시뮬레이션풍 프리셋 7종을 입혀 보고, 밀착 인화 8칸에서 골라 강도를 맞춘 뒤 원본 해상도 JPEG로 저장하는 브라우저 앱(PWA)</td></tr><tr><td>대상 사용자</td><td>주 사용자는 본인(갤럭시 스마트폰·소니 미러리스 사용자), 부 사용자는 포트폴리오 방문자</td></tr><tr><td>화면 기준</td><td>데스크톱 1440×900, 스마트폰 360~430px</td></tr><tr><td>테마</td><td>A 암실, B 카메라 기어(기본), C 파스텔 사진관. 기능은 같고 겉모습만 다름</td></tr><tr><td>개발 기간</td><td>기획 문서 정리 후 M1~M5와 P2 확장까지 커밋 12개 (모두 2026-11-25에 커밋)</td></tr><tr><td>규모</td><td>소스(src) 약 9,300줄, 단위 테스트 83개, 화면(e2e) 테스트 35개</td></tr></tbody></table></div>
+    </section>
+    <section id="sec-2" class="card">
+      <h2>2. 목표 및 배경</h2>
+<p>후지필름의 필름 시뮬레이션은 카메라 안에서 RAW에 적용되고, Lightroom·Capture One의 후지 프로필도 후지 RAW 파일에만 쓸 수 있습니다. 그래서 갤럭시·소니 JPEG에는 같은 감성을 입히기 어렵습니다. 범용 필터 앱은 룩이 많지만 같은 사진에 여러 룩을 한꺼번에 깔아 놓고 비교하기는 불편합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>목표</th></tr></thead><tbody><tr><td>사용 목표</td><td>갤럭시·소니 JPEG에 후지 감성 색감을 빠르게 입히고 원본 해상도로 저장</td></tr><tr><td>경험 목표</td><td>사진 열기 → 컷 고르기 → 저장, 세 번의 동작으로 결과물 얻기</td></tr><tr><td>포트폴리오 목표</td><td>WebGL2 셰이더, 3D LUT 색 처리, 반응형 UI를 보여 주는 공개 프로젝트</td></tr></tbody></table></div>
+<p>하지 않기로 한 것: RAW·HEIC 등 JPEG 외 형식, 여러 장 일괄 처리, 부분 보정·자르기, 회원 가입·서버 업로드, 네이티브 앱, 후지 카메라 결과와의 픽셀 단위 일치.</p>
+    </section>
+    <section id="sec-3" class="card">
+      <h2>3. 주요 기능</h2>
+<h3>3.1 편집</h3>
+<ul><li>원본 1칸과 프리셋 7칸(P01 데일리, V02 비비드 슬라이드, A03 소프트 포트레이트, C04 다큐 크롬, N05 네거 스냅, E06 시네마 소프트, M07 모노 그레인)을 밀착 인화로 한 화면에 보여 줌</li><li>사진 위 어디든 끌어 원본과 결과를 나눠 보는 비교 슬라이더(마우스·터치·방향키), 누르고 있는 동안 원본 보기</li><li>강도(0~100%), 입자(양·크기), 비네팅, M07 전용 흑백 필터(노랑·빨강·초록)</li><li>외부 <code>.cube</code> LUT를 9번째 칸으로 불러오기</li><li>별표로 후보 표시, 100% 확대 보기(원본 해상도 1:1, 끌기·방향키 이동)</li></ul>
+<h3>3.2 저장</h3>
+<ul><li>2048px 타일 렌더링으로 원본 해상도 저장(61MP 확인), 파일 이름 <code>원본이름_프리셋코드.jpg</code></li><li>저장 품질 80/92/100% 선택</li><li>EXIF(GPS 포함) 보존, 회전 정보만 정방향으로, EXIF 썸네일·Ultra HDR 게인 맵·ICC 제외</li><li>스마트폰은 24MP 상한을 넘으면 줄여 저장하고, 공유 시트를 여는 두 단계 공유</li></ul>
+<h3>3.3 그 밖의 기능</h3>
+<ul><li>테마 3종과 테마 전환 메뉴·단축키 <code>T</code>, 테마별 기믹(작업등, 뷰파인더 격자선, 반짝이)</li><li>마지막 테마와 편집 값(프리셋·강도·입자·흑백 필터·비네팅·품질) 기억</li><li>PWA 설치와 오프라인 실행</li><li>키보드 단축키, 앱 정보(비제휴 고지·개인 정보 안내) 화면</li></ul>
+    </section>
+    <section id="sec-4" class="card">
+      <h2>4. 기술 스택 및 아키텍처</h2>
+<div class="table-wrap"><table><thead><tr><th>영역</th><th>선택</th><th>이유</th></tr></thead><tbody><tr><td>화면</td><td>Vite 8 + React 19 + TypeScript(strict)</td><td>상태 관리가 단순하고 포트폴리오에서 알아보기 쉬움</td></tr><tr><td>렌더링</td><td>WebGL2 직접 작성(라이브러리 없음)</td><td>3D 텍스처로 LUT 셰이더가 단순해지고, 셰이더 구현을 보여 줄 수 있음</td></tr><tr><td>색 처리</td><td>프리셋 JSON → 33³ 3D LUT(<code>RGBA16F</code>)로 굽기</td><td>셰이더 하나로 모든 프리셋 처리, 프리셋별 분기 없음</td></tr><tr><td>EXIF</td><td>APP1만 다루는 모듈 직접 작성</td><td>piexifjs는 오래 관리되지 않아 필요한 일만 하는 작은 모듈로</td></tr><tr><td>글꼴</td><td><code>@fontsource</code> 패키지</td><td>외부 글꼴 서버 요청 없음, 오프라인 지원</td></tr><tr><td>테스트</td><td>Vitest(색 처리·LUT·EXIF·.cube), Playwright(화면·렌더 픽셀 비교)</td><td>색 처리 회귀를 숫자로 지킴</td></tr><tr><td>배포</td><td>GitHub Actions → GitHub Pages</td><td>main에 올리면 lint·단위 테스트·빌드 후 배포</td></tr></tbody></table></div>
+<h3>4.1 폴더 구조</h3>
+<div class="table-wrap"><table><thead><tr><th>폴더</th><th>하는 일</th></tr></thead><tbody><tr><td><code>src/color/</code></td><td>sRGB ↔ 선형광 ↔ OKLab/OKLCh, 단조 3차 톤 커브, HSL 8구간, LUT 굽기, .cube 파서</td></tr><tr><td><code>src/gl/</code></td><td>WebGL2 렌더러, LUT·입자·비네팅 셰이더, 타일 렌더링, 썸네일</td></tr><tr><td><code>src/io/</code></td><td>JPEG 열기, EXIF 읽기·쓰기, 저장·공유, 샘플</td></tr><tr><td><code>src/app/</code></td><td>화면 컴포넌트(Header, ContactSheet, Preview, ControlPanel, ThemeSwitcher), 확대 계산</td></tr><tr><td><code>src/themes/</code></td><td>테마별 토큰(CSS 변수)·문구 사전·장식 컴포넌트(ThemeKit)</td></tr><tr><td><code>src/state/</code></td><td>편집 상태와 브라우저 기억</td></tr><tr><td><code>src/pwa/</code></td><td>서비스 워커와 등록</td></tr><tr><td><code>src/tuning/</code></td><td>개발 서버 전용 프리셋 튜닝 화면</td></tr></tbody></table></div>
+<h3>4.2 처리 흐름</h3>
+<ol><li>JPEG를 열면 헤더(SOF·EXIF·ICC)를 먼저 읽고, EXIF 회전을 반영해 디코딩한 뒤 긴 변 2048px 미리보기와 512px 썸네일을 만든다.</li><li>고른 프리셋 JSON을 33³ LUT로 굽고, 셰이더가 <code>mix(원본, LUT 결과, 강도)</code>에 비네팅과 입자를 더한다.</li><li>저장할 때는 원본을 다시 디코딩해 2048px 타일로 나눠 그리고, 한 캔버스에 이어 붙여 JPEG로 인코딩한 뒤 고친 EXIF를 끼운다.</li></ol>
+<h3>4.3 테마 구조</h3>
+<p>기능 컴포넌트는 하나만 두고, 테마는 <code>data-theme</code> 속성 + CSS 의미 토큰 + 문구 사전(<code>copy.ts</code>) + 장식 slot(ThemeKit)으로만 바꿉니다. 컴포넌트 안에 색상값이나 <code>if (theme === …)</code> 분기를 두지 않습니다.</p>
+    </section>
+    <section id="sec-5" class="card">
+      <h2>5. 개발 과정 (타임라인)</h2>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>커밋</th><th>내용</th></tr></thead><tbody><tr><td>기획</td><td><code>45251c5</code></td><td>기획 문서 v1.4, 디자인 가이드 v1.1, 테마 시안 3종</td></tr><tr><td>M1 엔진</td><td><code>a054b0f</code></td><td>색 처리 명세(5.4) 구현과 단위 테스트, WebGL2 렌더러, LUT 셰이더, Adobe RGB 자동 변환 확인</td></tr><tr><td>M2 MVP</td><td><code>b978cca</code></td><td>B 카메라 기어 편집 화면, 비교·강도, 2048px 타일 저장, 프리셋 2종</td></tr><tr><td>M3 확장</td><td><code>f3a084f</code></td><td>프리셋 7종, 밀착 인화 8칸, 입자, 흑백 필터, EXIF 보존, 61MP 저장 확인, 튜닝 화면</td></tr><tr><td>M4 마무리</td><td><code>ad2990b</code></td><td>격자선 기믹, 원본 보기, 두 단계 공유, 사용자 LUT, 앱 정보, 샘플 스크립트, 배포 설정</td></tr><tr><td>사용 피드백 반영</td><td><code>02be163</code> ~ <code>7fd55d0</code></td><td>일반 창에서 사진 크게(사진 우선 배치), 세로 사진 저장 오류 수정, 헤더 고정, 비교선 마우스 끌기</td></tr><tr><td>M5 테마 확장</td><td><code>af10c52</code></td><td>A 암실·C 파스텔 테마, 테마 전환·기억, A·C 기믹, 저장 카드</td></tr><tr><td>P2 확장 1</td><td><code>f5f37ab</code></td><td>설정 기억, 별표, 100% 확대 보기, PWA 오프라인</td></tr><tr><td>P2 확장 2</td><td><code>3bc7918</code></td><td>비네팅, 저장 품질 선택</td></tr></tbody></table></div>
+<p>M1~M4는 B 테마 하나로 기능을 먼저 완성하고, A·C 테마는 M5에서 겉모습만 더하는 순서로 진행했습니다. 토큰·문구·장식 slot 구조는 처음부터 세 테마를 전제로 만들어 M5에서 기능 코드를 거의 고치지 않았습니다.</p>
+    </section>
+    <section id="sec-6" class="card">
+      <h2>6. 주요 의사결정과 이유</h2>
+<div class="table-wrap"><table><thead><tr><th>결정</th><th>이유</th></tr></thead><tbody><tr><td>프리셋을 JSON 파라미터로 정의하고 실행할 때 LUT로 굽기</td><td>셰이더에 프리셋별 분기가 없어지고, 사용자 LUT도 같은 경로로 처리</td></tr><tr><td>HSL 조정을 OKLCh 8구간에서</td><td>색상 이동 시 밝기가 덜 흔들려 튜닝이 안정적</td></tr><tr><td>타일 저장을 M2로 앞당김</td><td>한 번에 그리면 모바일 GPU의 최대 텍스처 크기를 넘을 수 있음</td></tr><tr><td>입자를 사진 좌표 기준 값 노이즈로</td><td>타일 이음매가 생기지 않고, 미리보기·확대·저장에서 같은 자리에 생김</td></tr><tr><td>Adobe RGB는 안내만</td><td>Chromium이 디코딩할 때 sRGB로 자동 변환함을 테스트로 확인</td></tr><tr><td>스마트폰 저장 상한 24MP</td><td>쓰는 사진이 24MP 이하라 실측 대신 결정으로 확정</td></tr><tr><td>스마트폰은 저장과 공유를 두 단계로</td><td>공유 시트는 방금 누른 동작에서만 열려, 긴 렌더링 뒤에는 열리지 않음</td></tr><tr><td>사진 우선 배치, 1399px 이하에서 왼쪽 장식 열 숨김</td><td>일반 창에서 사진이 너무 작다는 피드백</td></tr><tr><td>저장 버튼을 추가하지 않고 헤더 고정</td><td>필름 스트립까지 스크롤해도 저장 버튼이 보임</td></tr><tr><td>테마 버튼을 헤더 도구 줄 끝에</td><td>스마트폰에서 ‘사진 열기’가 아래 저장 줄에 있어 같은 자리를 유지하려고</td></tr><tr><td>확대는 <code>Ctrl</code>+휠, 두 번 누르기, 버튼</td><td>그냥 휠은 페이지 스크롤을 빼앗음</td></tr><tr><td>별표는 조절판의 토글 하나로</td><td>스마트폰 96px 칸에 44px 버튼을 겹치면 잘못 누르기 쉬움</td></tr><tr><td>오프라인 글꼴은 쓴 만큼만 보관</td><td>한글 글꼴 조각 파일이 1,000개 넘고 약 23MB</td></tr></tbody></table></div>
+    </section>
+    <section id="sec-7" class="card">
+      <h2>7. 문제 해결 기록</h2>
+<div class="table-wrap"><table><thead><tr><th>문제</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>세로 사진을 저장하면 조각이 뒤섞임</td><td>Chromium이 EXIF 회전을 반영한 비트맵을 <code>createImageBitmap</code>으로 자를 때 회전 전 좌표로 자름</td><td>타일 조각을 2D 캔버스 <code>drawImage</code>로 잘라 옮김, 회전 사진 여러 타일 e2e 추가</td></tr><tr><td>비교 슬라이더가 44px 높이에서만 끌림</td><td>전역 <code>input[type='range']</code> 규칙이 더 구체적이었음</td><td>선택자를 <code>input[type='range'].compare-input</code>로 높여 사진 전체를 덮음</td></tr><tr><td>모든 칸에 LOADED 표시</td><td>스크립트 치환이 같은 문자열 여러 곳을 바꿈</td><td>되돌리고 회귀 검사 추가, 이후 치환은 일치 1개를 확인하도록</td></tr><tr><td>스마트폰에서 화면이 옆으로 조금 밀림</td><td>B 헤더 프레임 카운터, C 마스킹 테이프</td><td>스마트폰에서 카운터 숨김, <code>.app{overflow-x: clip}</code></td></tr><tr><td>C 구름 장식이 헤더 버튼을 가림</td><td>배경 장식 위치</td><td>폴라로이드 위쪽 가장자리로 이동</td></tr><tr><td>공유 대기 해제 코드가 lint 규칙 위반</td><td>effect 안에서 상태 변경</td><td>저장 당시 값과 지금 값을 비교해 파생 값으로 계산</td></tr><tr><td>오프라인에서 앱이 안 열림</td><td>모듈 스크립트 요청에 Origin 머리글이 붙고 서버가 <code>Vary: Origin</code>을 줘 보관본과 맞지 않음</td><td>서비스 워커에서 <code>ignoreVary</code>로 찾음</td></tr><tr><td>조절판 버튼 추가 후 테마 카드 모양이 어긋남</td><td>테마 CSS가 카드를 <code>:first-child</code> 순서로 고름</td><td><code>:nth-child(n of .control-card)</code>로 바꿔 버튼을 세지 않음</td></tr><tr><td>비네팅을 넣은 뒤 타입 검사 오류</td><td>두 캔버스 종류를 함께 받는 <code>getContext</code>의 반환 타입을 TS가 넓게 잡음</td><td><code>WebGL2RenderingContext</code>로 명시</td></tr><tr><td>테스트 중 Claude Code가 멈춤</td><td>e2e를 병렬로 많이 돌려 메모리 부족</td><td>e2e 동시 실행 수를 2개로 줄여 돌림</td></tr></tbody></table></div>
+    </section>
+    <section id="sec-8" class="card">
+      <h2>8. 보안/성능 고려사항</h2>
+<h3>8.1 개인 정보</h3>
+<ul><li>사진과 파생물(썸네일, 렌더 결과)은 기기 밖으로 나가지 않습니다. 서버 업로드, 분석 도구, 외부 글꼴·CDN 요청이 없습니다.</li><li>서비스 워커는 앱 파일만 보관합니다. 사진은 기기 안의 파일이라 서비스 워커를 거치지 않습니다.</li><li>저장소에 넣는 샘플 사진은 스크립트로 EXIF·GPS·XMP·게인 맵을 지웁니다. 앱이 저장하는 결과물은 사용자의 결정에 따라 GPS를 유지합니다.</li><li>후지필름 공식 LUT는 <code>luts/private/</code>에만 두고 커밋하지 않습니다. 앱 정보에 비제휴 고지를 둡니다.</li></ul>
+<h3>8.2 성능</h3>
+<ul><li>미리보기는 긴 변 2048px 축소본으로 그리고, 썸네일은 사진이나 사용자 LUT가 바뀔 때만 다시 만듭니다.</li><li>저장은 2048px 타일로 나눠 GPU 텍스처 한계와 메모리 급증을 피합니다. 24MP 저장 약 0.6초(데스크톱), 61MP 저장 약 2.7~6초(헤드리스 소프트웨어 GPU).</li><li>100% 확대는 화면 크기만큼만 잘라 올리고, 맞춤 보기로 돌아가면 원본 비트맵(24MP 약 96MB)을 바로 놓아줍니다.</li><li>테마 글꼴은 그 테마를 고를 때 불러옵니다.</li></ul>
+    </section>
+    <section id="sec-9" class="card">
+      <h2>9. 테스트 및 검증</h2>
+<div class="table-wrap"><table><thead><tr><th>종류</th><th>개수</th><th>내용</th></tr></thead><tbody><tr><td>단위 테스트(Vitest)</td><td>83개</td><td>색 변환·톤 커브·LUT 굽기, .cube 파서, EXIF 고치기, 저장 크기, 입자 크기, 설정 기억, 확대 영역 계산</td></tr><tr><td>화면 테스트(Playwright)</td><td>35개</td><td>프리셋 적용, 강도 0% 원본 일치(채널별 ±1), 타일 이음매, 61MP 저장, 회전 사진, 공유, 사용자 LUT, 테마 전환·기억, 별표, 100% 확대, 비네팅, 저장 품질</td></tr></tbody></table></div>
+<ul><li>색 정확도는 JPEG 인코딩 전 렌더 결과(<code>readPixels</code>)로 비교합니다. 개발 서버에서만 열리는 검사용 창구 <code>window.__filmlook</code>을 씁니다.</li><li>기능을 바꿀 때마다 <code>npm run build</code>, <code>npm run test</code>, <code>npm run lint</code>와 e2e 전체를 돌렸습니다.</li><li>데스크톱 1440×900과 스마트폰 360·390·430px에서 세 테마의 화면을 직접 확인하고 가로 넘침을 측정했습니다.</li><li>새 글자색 조합은 WCAG 대비를 계산해 모두 4.5:1 이상임을 디자인 가이드에 기록했습니다.</li><li>배포 빌드에서 서비스 워커 등록과 오프라인 다시 불러오기를 확인했습니다.</li></ul>
+    </section>
+    <section id="sec-10" class="card">
+      <h2>10. 배포</h2>
+<ul><li>GitHub Actions(<code>.github/workflows/deploy.yml</code>): main에 올리면 lint → 단위 테스트 → 빌드 → GitHub Pages 배포</li><li>주소: https://poguni.github.io/filmlook-studio/ (저장소 Settings → Pages → Source를 GitHub Actions로 켠 뒤 열림)</li><li>PWA로 홈 화면에 설치할 수 있습니다(매니페스트 이름 ‘색감 사진관’).</li></ul>
+    </section>
+    <section id="sec-11" class="card">
+      <h2>11. 알려진 한계</h2>
+<ul><li>JPEG를 다시 가공한 근사치라 실제 후지 필름 시뮬레이션과 결과가 다릅니다.</li><li>갤럭시 Ultra HDR 사진은 HDR 정보를 빼고 SDR JPEG로 저장합니다.</li><li>스마트폰은 24MP를 넘는 사진을 24MP로 줄여 저장합니다(실기기 측정 전 결정값).</li><li>64MP를 넘는 사진(갤럭시 200MP 등)은 따로 다루지 않아 메모리가 부족할 수 있습니다.</li><li>저장은 메인 스레드에서 타일 사이에 양보하며 진행해, 저장 중에는 화면 조작이 막힙니다.</li><li>오프라인에서는 온라인에서 한 번도 쓰지 않은 테마 글꼴이 기본 글꼴로 보입니다.</li><li>Safari·Firefox는 필수 지원 대상이 아니고 확인하지 않았습니다. WebGL2가 없으면 안내만 표시합니다.</li><li>별표와 비교 위치는 새로고침하면 사라집니다(의도된 동작).</li></ul>
+    </section>
+    <section id="sec-12" class="card">
+      <h2>12. 향후 개선 아이디어 / 업데이트 계획</h2>
+<h3>12.1 아직 구현하지 않은 기능 (PRD 요구 사항)</h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>기능</th><th>우선순위</th><th>메모</th></tr></thead><tbody><tr><td>F-04</td><td>64MP를 넘는 사진을 “64MP로 줄여서 편집” 선택지와 함께 열기. 전체 디코딩 전에 JPEG 헤더에서 크기 판단</td><td>P2</td><td>쓰는 사진이 24MP 이하라 미뤄 둠. 갤럭시 200MP 모드를 쓰게 되면 필요</td></tr><tr><td>P-06</td><td>불러온 LUT의 입력 감마를 sRGB와 F-Log2 중에서 고르기</td><td>P2</td><td>후지 F-Log2용 LUT를 쓸 때 필요</td></tr><tr><td>C-04</td><td>밀착 인화 칸에 마우스를 올리거나 길게 누르면 크게 미리 보기</td><td>P2</td><td>칸을 누르면 바로 큰 미리보기에 적용되어 효과는 작음</td></tr><tr><td>6.3 실행 위치</td><td>저장 렌더링을 Web Worker + OffscreenCanvas로 옮겨 화면 멈춤 줄이기</td><td>기술 과제</td><td>지금은 메인 스레드에서 처리</td></tr></tbody></table></div>
+<h3>12.2 아직 확인하지 않은 것 (실기기·실사진)</h3>
+<ul><li>갤럭시 실기기: 스마트폰 저장 상한(24·50·61MP)과 저장 시간 측정, 두 단계 공유 시트, 비교 슬라이더 터치, 두 손가락 확대, 홈 화면 설치와 비행기 모드 실행, A·C 테마 화면</li><li>실제 소니 Adobe RGB 사진의 색 변환, 삼성 인터넷에서의 동작</li><li>실제 카메라 사진으로 61MP 저장 시간(디코딩이 합성 사진보다 오래 걸릴 수 있음)</li><li>성공 기준: 직접 찍은 사진 20장 이상 보정·저장, 열기부터 저장까지 30초 이내</li></ul>
+<h3>12.3 남은 준비 작업</h3>
+<ul><li>체험용 샘플 사진 3장 넣기(<code>npm run samples</code> 명령에 사진 파일 경로를 넘김). 지금은 목록이 비어 있어 샘플 버튼이 숨겨져 있음</li><li>GitHub Pages 켜고 배포 주소를 포트폴리오에 게시</li><li>프리셋 7종을 실제 사진으로 튜닝 화면에서 계속 다듬기</li></ul>
+<h3>12.4 다음에 하면 좋을 것 (제안)</h3>
+<ul><li>프리셋 비교 전후를 한 장에 나란히 내보내기(포트폴리오·SNS용 비교 이미지)</li><li>별표한 후보만 모아 보기 필터(칸이 9개 이상일 때 유용)</li><li>확대 중 작은 위치 안내(전체 사진 속 현재 영역 표시)</li><li>저장 진행 중 취소 버튼</li></ul>
+<h3>12.5 아이디어 수준</h3>
+<ul><li>사용자 프리셋 저장(강도·입자·비네팅 조합에 이름 붙이기)</li><li>여러 장 순서대로 같은 설정 적용(현재 비목표라 범위 결정 필요)</li><li>HEIC 입력(현재 비목표, 갤럭시 고효율 사진 모드 대응)</li></ul>
+    </section>
+    <p class="foot">색감 사진관 · 개발 보고서 v1</p>
+  </main>
+</div>
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const toggle = document.getElementById('navToggle');
+  const links = document.querySelectorAll('nav.sidebar a');
+  const sections = [...links].map(a => document.querySelector(a.getAttribute('href')));
+  const setActive = (id) => links.forEach(a => {
+    const on = a.getAttribute('href') === '#' + id;
+    a.classList.toggle('active', on);
+    if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+  });
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => { if (entry.isIntersecting) setActive(entry.target.id); });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach((el) => el && observer.observe(el));
+  // 모바일: 목차 접기·펼치기, 항목을 누르면 접는다
+  toggle.addEventListener('click', () => {
+    const open = sidebar.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+  links.forEach(a => a.addEventListener('click', () => {
+    setActive(a.getAttribute('href').slice(1));
+    sidebar.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  }));
+  if (sections[0]) setActive(sections[0].id);
+</script>
+</body>
+</html>
