@@ -144,3 +144,43 @@ test('저장 해상도 상한을 넘으면 안내하고 비율을 지켜 줄여 
   expect(width / height).toBeCloseTo(300 / 400, 1);
   expect(readExif(bytes)).toMatchObject({ orientation: 1, pixelX: width, pixelY: height });
 });
+
+test('세로 사진(회전 6)을 여러 타일로 저장해도 조각이 뒤섞이지 않음 (PRD F-02, 6.3)', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  // 3000×2000 사진을 세로(회전 6)로 표시하면 2000×3000, 타일 2048px로 2조각 이상
+  const source = insertSegment(await makeTestJpeg(page, 3000, 2000), exifWithGps(6, 3000, 2000));
+  await openTestPhoto(page, 'portrait.jpg', source);
+  const downloading = page.waitForEvent('download');
+  await page.getByRole('button', { name: '저장' }).click();
+  const saved = await readFile((await (await downloading).path())!);
+
+  // 원본(회전 반영 디코딩)과 저장본을 같은 지점들에서 비교. 원본 칸이라 색은 같아야 함
+  const diff = await page.evaluate(
+    async ([a, b]) => {
+      const pixels = async (b64: string) => {
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        const bmp = await createImageBitmap(new Blob([bytes]), { imageOrientation: 'from-image' });
+        const c = new OffscreenCanvas(bmp.width, bmp.height);
+        const ctx = c.getContext('2d')!;
+        ctx.drawImage(bmp, 0, 0);
+        return { w: bmp.width, h: bmp.height, ctx };
+      };
+      const src = await pixels(a);
+      const out = await pixels(b);
+      if (src.w !== out.w || src.h !== out.h) return 999;
+      let m = 0;
+      for (let y = 100; y < src.h; y += 400) {
+        for (let x = 100; x < src.w; x += 400) {
+          const p = src.ctx.getImageData(x, y, 1, 1).data;
+          const q = out.ctx.getImageData(x, y, 1, 1).data;
+          for (let k = 0; k < 3; k++) m = Math.max(m, Math.abs(p[k] - q[k]));
+        }
+      }
+      return m;
+    },
+    [source.toString('base64'), saved.toString('base64')],
+  );
+  expect(diff).toBeLessThanOrEqual(12);
+});

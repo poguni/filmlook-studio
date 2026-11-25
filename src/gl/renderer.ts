@@ -101,7 +101,8 @@ export class Renderer {
     return tex;
   }
 
-  setImage(bitmap: ImageBitmap): void {
+  /** 사진(미리보기 비트맵)이나 저장용 타일 조각(2D 캔버스) */
+  setImage(bitmap: ImageBitmap | OffscreenCanvas): void {
     const gl = this.gl;
     gl.canvas.width = bitmap.width;
     gl.canvas.height = bitmap.height;
