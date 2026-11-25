@@ -5,6 +5,7 @@ import {
   CameraAside,
   FilmCanister,
   FrameCounter,
+  GlassSwatch,
   KnobHandle,
   LcdCaption,
   LoadedMark,
@@ -26,4 +27,5 @@ export const camera: ThemeKit = {
   StrengthArt: ApertureArt,
   SheetLead: FilmCanister,
   FrameMark: LoadedMark,
+  MonoSwatch: GlassSwatch,
 };

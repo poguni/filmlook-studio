@@ -1,0 +1,25 @@
+{
+  "code": "N05",
+  "name": "네거 스냅",
+  "subtitle": "Classic Neg.에서 영감",
+  "toneCurve": [
+    [0, 0],
+    [0.25, 0.21],
+    [0.5, 0.5],
+    [0.75, 0.8],
+    [1, 1]
+  ],
+  "contrast": 15,
+  "saturation": -5,
+  "hsl": {
+    "red": { "hue": 5, "sat": 5, "lum": 0 },
+    "green": { "hue": 15, "sat": -10, "lum": 0 }
+  },
+  "whiteBalance": { "temp": 0, "tint": 0 },
+  "splitTone": {
+    "shadows": { "hue": 180, "sat": 12 },
+    "highlights": { "hue": 330, "sat": 6 }
+  },
+  "mono": null,
+  "defaultGrain": 0
+}

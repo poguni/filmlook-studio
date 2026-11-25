@@ -13,15 +13,7 @@ interface Props extends ArtProps {
 
 export const COMPARE_STEP = 5;
 
-export function Preview({
-  canvasRef,
-  hasPhoto,
-  aspect,
-  compare,
-  onCompare,
-  preset,
-  strength,
-}: Props) {
+export function Preview({ canvasRef, hasPhoto, aspect, compare, onCompare, ...art }: Props) {
   const { copy, PreviewOverlay, CompareHandle, Caption } = useTheme();
 
   // 방향키는 5%씩 (design/DESIGN.md 6.2). 끌기는 1% 단위로 부드럽게
@@ -64,7 +56,11 @@ export function Preview({
                 </span>
                 <span className="compare-tag compare-tag-left">{copy['compare.left']}</span>
                 <span className="compare-tag compare-tag-right">
-                  {fill(copy['compare.right'], { code: preset.code, strength, name: preset.name })}
+                  {fill(copy['compare.right'], {
+                    code: art.preset.code,
+                    strength: art.strength,
+                    name: art.preset.name,
+                  })}
                 </span>
                 <input
                   type="range"
@@ -84,7 +80,7 @@ export function Preview({
           {!hasPhoto && <p className="preview-hint">{copy['drop.hint']}</p>}
         </div>
       </div>
-      <Caption preset={preset} strength={strength} />
+      <Caption {...art} />
     </section>
   );
 }

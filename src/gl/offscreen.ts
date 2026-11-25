@@ -30,7 +30,7 @@ export function renderThumbnails(
   const out = new Map<string, ImageBitmap>();
   for (const job of jobs) {
     if (job.lut) renderer.setLut(job.lut);
-    renderer.render(job.lut ? 1 : 0);
+    renderer.render({ strength: job.lut ? 1 : 0 });
     out.set(job.code, canvas.transferToImageBitmap());
   }
   return out;

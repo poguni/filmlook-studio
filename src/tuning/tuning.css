@@ -1,0 +1,109 @@
+/* 개발용 튜닝 화면. 기본 테마 토큰만 씀 */
+.tn {
+  padding: 16px 24px 40px;
+  display: grid;
+  gap: 16px;
+}
+
+.tn-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.tn-head h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.tn-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 460px;
+  gap: 24px;
+  align-items: start;
+}
+
+.tn-preview {
+  position: sticky;
+  top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.tn-preview canvas {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  background: var(--color-preview-mat);
+}
+
+.tn-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.tn fieldset {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-s);
+  background: var(--color-surface);
+}
+
+.tn-slider {
+  display: grid;
+  grid-template-columns: 110px 1fr 72px;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.tn-slider input[type='range'] {
+  height: 28px;
+}
+
+.tn-band,
+.tn-point {
+  display: grid;
+  gap: 2px;
+  padding: 4px 0;
+  border-top: 1px dashed var(--color-line);
+}
+
+.tn-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tn-json textarea {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+@media (max-width: 1000px) {
+  .tn-body {
+    grid-template-columns: 1fr;
+  }
+
+  .tn-preview {
+    position: static;
+  }
+}
+
+.tn button {
+  min-height: 32px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+}
+
+.tn button:disabled {
+  opacity: 0.4;
+}

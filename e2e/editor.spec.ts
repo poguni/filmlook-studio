@@ -1,4 +1,4 @@
-// M2 MVP 스모크 테스트: 비교 슬라이더, 썸네일, 단축키, 저장 (PRD 10장 M2)
+// 편집 화면 스모크 테스트: 비교 슬라이더, 썸네일, 단축키, 저장 (PRD 10장 M2·M3)
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 import { readJpegInfo } from '../src/io/jpeg';
@@ -50,10 +50,11 @@ test('비교 슬라이더: 기본은 전체가 결과, 50%면 왼쪽만 원본 (
 test('밀착 인화: 칸마다 썸네일이 그려지고 숫자 키로 고름 (PRD C-01, 8.1)', async ({ page }) => {
   await openTestPhoto(page);
   const thumbs = page.locator('.frame-thumb');
-  await expect(thumbs).toHaveCount(3);
+  await expect(thumbs).toHaveCount(8);
   for (const t of await thumbs.all()) await expect(t).not.toHaveJSProperty('width', 300);
 
-  await page.locator('body').press('3');
+  // 1 원본, 2~8 P01~M07 (PRD 8.1)
+  await page.locator('body').press('5');
   await expect(page.getByRole('button', { name: 'C04 다큐 크롬 선택' })).toHaveAttribute(
     'aria-pressed',
     'true',

@@ -48,4 +48,13 @@
   --art-shade-4: #555555;
   --art-shade-blade: #2c2c2c;
   --art-shine: #ffffff;
+  /* 렌즈 필터 유리: 글자 대비는 유리 색을 어두운 배경에 겹친 결과 기준 */
+  --art-glass-rim: #6d6b65;
+  --art-glass-clear: rgba(255, 255, 255, 0.08);
+  --art-glass-yellow: rgba(255, 205, 50, 0.75);
+  --art-glass-yellow-ink: #241a00;
+  --art-glass-red: rgba(225, 50, 40, 0.8);
+  --art-glass-red-ink: #ffffff;
+  --art-glass-green: rgba(70, 165, 85, 0.8);
+  --art-glass-green-ink: #000000;
 }

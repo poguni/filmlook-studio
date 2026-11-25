@@ -196,6 +196,78 @@ input[type='range'] {
   color: var(--color-highlight);
 }
 
+/* 입자 크기: 두 버튼 중 하나 */
+.segmented {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.segmented button {
+  flex: 1;
+  min-height: 44px;
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-s);
+  background: var(--color-surface-2);
+}
+
+/* 선택은 색만이 아니라 굵은 테두리로도 구분 */
+.segmented button[aria-pressed='true'] {
+  border: 2px solid var(--color-accent);
+  font-weight: 700;
+}
+
+/* 흑백 필터 (design/DESIGN.md 6.4) */
+.mono {
+  margin: 0;
+  min-width: 0;
+}
+
+.mono legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+}
+
+.mono:disabled {
+  opacity: 0.4;
+}
+
+.control-note {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+.mono-choices {
+  clear: both;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.mono-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.mono-name {
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.mono-choice[aria-pressed='true'] .mono-name {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
 /* 밀착 인화 */
 .sheet {
   min-width: 0;

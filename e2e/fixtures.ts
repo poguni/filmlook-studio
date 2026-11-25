@@ -4,8 +4,8 @@ import type { Page } from '@playwright/test';
 export const W = 64;
 export const H = 48;
 
-/** 네 칸(초록·주황·회색 계단·파랑)으로 나뉜 64×48 JPEG */
-export async function makeTestJpeg(page: Page): Promise<Buffer> {
+/** 네 칸(초록·주황·회색 계단·파랑)으로 나뉜 JPEG (기본 64×48) */
+export async function makeTestJpeg(page: Page, width = W, height = H): Promise<Buffer> {
   const b64 = await page.evaluate(
     async ([w, h]) => {
       const c = new OffscreenCanvas(w, h);
@@ -27,7 +27,7 @@ export async function makeTestJpeg(page: Page): Promise<Buffer> {
       for (const b of bytes) s += String.fromCharCode(b);
       return btoa(s);
     },
-    [W, H],
+    [width, height],
   );
   return Buffer.from(b64, 'base64');
 }
@@ -57,6 +57,49 @@ export function exifOrientation(value: number): Buffer {
   tiff.writeUInt32BE(1, 14);
   tiff.writeUInt16BE(value, 18);
   tiff.writeUInt32BE(0, 22); // 다음 IFD 없음
+  return segment(0xe1, Buffer.concat([Buffer.from('Exif\0\0', 'binary'), tiff]));
+}
+
+/**
+ * 실제 카메라 파일처럼 회전·Exif IFD(크기)·GPS·IFD1(썸네일)을 가진 EXIF(APP1)
+ * 위치: IFD0 8 → Exif IFD 70 → GPS IFD 100 → IFD1 130
+ */
+export function exifWithGps(orientation: number, width: number, height: number): Buffer {
+  const tiff = Buffer.alloc(160);
+  tiff.write('MM', 0, 'ascii');
+  tiff.writeUInt16BE(42, 2);
+  tiff.writeUInt32BE(8, 4);
+  const ifd = (at: number, entries: [number, number, number][], next: number) => {
+    tiff.writeUInt16BE(entries.length, at);
+    entries.forEach(([tag, type, value], k) => {
+      const e = at + 2 + k * 12;
+      tiff.writeUInt16BE(tag, e);
+      tiff.writeUInt16BE(type, e + 2);
+      tiff.writeUInt32BE(1, e + 4);
+      if (type === 3) tiff.writeUInt16BE(value, e + 8);
+      else tiff.writeUInt32BE(value, e + 8);
+    });
+    tiff.writeUInt32BE(next, at + 2 + entries.length * 12);
+  };
+  ifd(
+    8,
+    [
+      [0x0112, 3, orientation],
+      [0x8769, 4, 70],
+      [0x8825, 4, 100],
+    ],
+    130,
+  );
+  ifd(
+    70,
+    [
+      [0xa002, 4, width],
+      [0xa003, 4, height],
+    ],
+    0,
+  );
+  ifd(100, [[0x0000, 1, 0x02020000]], 0);
+  ifd(130, [[0x0103, 3, 6]], 0);
   return segment(0xe1, Buffer.concat([Buffer.from('Exif\0\0', 'binary'), tiff]));
 }
 

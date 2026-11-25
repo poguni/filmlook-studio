@@ -5,9 +5,24 @@ export interface Copy {
   /** {n}에 진행률(%)이 들어감 */
   'save.progress': string;
   'save.info': string;
+  /** 스마트폰 해상도 상한에 걸릴 때 save.info 자리에 보임. {mp}에 상한 */
+  'save.downscaled': string;
   strength: string;
   /** 강도 슬라이더의 접근 이름 (테마와 무관한 기본 이름) */
   'strength.name': string;
+  grain: string;
+  /** 입자 슬라이더의 접근 이름 */
+  'grain.name': string;
+  'grain.size': string;
+  'grain.small': string;
+  'grain.large': string;
+  'mono.title': string;
+  /** 흑백 프리셋이 아닐 때 보이는 안내 */
+  'mono.disabled': string;
+  'mono.none': string;
+  'mono.yellow': string;
+  'mono.red': string;
+  'mono.green': string;
   'compare.label': string;
   'compare.left': string;
   /** {code}·{strength}·{name}을 쓸 수 있음 */

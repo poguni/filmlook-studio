@@ -1,5 +1,6 @@
 // B 카메라 기어 테마 장식. 시안 색감사진관-시안B-camera.html의 SVG를 토큰 색으로 옮김
-import type { ArtProps } from '../kit';
+import type { MonoChoice } from '../../state/edit';
+import type { ArtProps, PresetView } from '../kit';
 import { artCopy, copy } from './copy';
 
 const v = (name: string) => `var(--${name})`;
@@ -30,7 +31,7 @@ export function Brand() {
   );
 }
 
-export function FrameCounter({ preset }: ArtProps) {
+export function FrameCounter({ preset }: { preset: PresetView }) {
   return (
     <div className="cam-counter" aria-hidden="true">
       <span className="cam-counter-dial">{preset.no}</span>
@@ -116,7 +117,7 @@ function CanisterIcon({ width, height }: { width: number; height: number }) {
   );
 }
 
-export function CameraAside({ preset, strength }: ArtProps) {
+export function CameraAside({ preset, strength, grain, mono, saveInfo }: ArtProps) {
   return (
     <aside className="cam-aside" aria-label={artCopy.asideLabel}>
       <CameraIllustration />
@@ -132,8 +133,12 @@ export function CameraAside({ preset, strength }: ArtProps) {
       <dl className="cam-card cam-summary">
         <dt>{artCopy.summaryStrength}</dt>
         <dd className="cam-mono">{strength}%</dd>
+        <dt>{artCopy.summaryGrain}</dt>
+        <dd className="cam-mono">{grain}</dd>
+        <dt>{artCopy.summaryFilter}</dt>
+        <dd>{copy[`mono.${mono}`]}</dd>
         <dt>{artCopy.summarySave}</dt>
-        <dd>{copy['save.info']}</dd>
+        <dd>{saveInfo}</dd>
       </dl>
     </aside>
   );
@@ -165,13 +170,15 @@ export function KnobHandle() {
   );
 }
 
-export function LcdCaption({ preset, strength }: ArtProps) {
+export function LcdCaption({ preset, strength, grain, mono }: ArtProps) {
   return (
     <div className="cam-lcd">
       <span>
         {preset.code} {preset.name}
       </span>
-      <span>STR {strength}</span>
+      <span>
+        STR {strength} · GRN {grain} · FLT {copy[`mono.${mono}`]}
+      </span>
       <span className="cam-lcd-hint">{copy['compare.hint']}</span>
     </div>
   );
@@ -221,6 +228,15 @@ export function LoadedMark() {
   return (
     <span className="cam-loaded-tag" aria-hidden="true">
       {artCopy.loaded}
+    </span>
+  );
+}
+
+/** 렌즈 필터 유리. 없음은 투명 유리 (design/DESIGN.md 7.2) */
+export function GlassSwatch({ filter }: { filter: MonoChoice }) {
+  return (
+    <span className={`cam-glass cam-glass-${filter}`} aria-hidden="true">
+      {filter === 'none' ? copy['mono.none'] : artCopy.glass[filter]}
     </span>
   );
 }

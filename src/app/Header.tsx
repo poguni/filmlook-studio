@@ -1,7 +1,9 @@
 import { fill } from '../themes/copy';
-import { useTheme, type ArtProps } from '../themes/kit';
+import { useTheme, type PresetView } from '../themes/kit';
 
-interface Props extends ArtProps {
+interface Props {
+  preset: PresetView;
+  saveInfo: string;
   canOpen: boolean;
   canSave: boolean;
   /** 저장 중이면 진행률(0~100), 아니면 null */
@@ -10,13 +12,13 @@ interface Props extends ArtProps {
   onSave: () => void;
 }
 
-export function Header({ preset, strength, canOpen, canSave, saving, onOpen, onSave }: Props) {
+export function Header({ preset, saveInfo, canOpen, canSave, saving, onOpen, onSave }: Props) {
   const { copy, Brand, HeaderCenter } = useTheme();
   const saveText = saving === null ? copy.save : fill(copy['save.progress'], { n: saving });
   return (
     <header className="app-header">
       <Brand />
-      {HeaderCenter && <HeaderCenter preset={preset} strength={strength} />}
+      {HeaderCenter && <HeaderCenter preset={preset} />}
       {/* 스마트폰에서는 화면 아래에 고정되는 동작 줄 (design/DESIGN.md 3.2) */}
       <div className="app-actions">
         <button type="button" className="btn-open" onClick={onOpen} disabled={!canOpen}>
@@ -34,7 +36,7 @@ export function Header({ preset, strength, canOpen, canSave, saving, onOpen, onS
           </span>
           <span className="btn-save-shutter" aria-hidden="true" />
         </button>
-        <span className="app-save-info">{copy['save.info']}</span>
+        <span className="app-save-info">{saveInfo}</span>
       </div>
     </header>
   );

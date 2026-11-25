@@ -1,12 +1,15 @@
 // 원본 해상도 렌더링: 2048px 타일로 나눠 그린 뒤 한 캔버스에 이어 붙임 (PRD 6.3)
 import type { Lut } from '../color/lut';
 import { offscreenRenderer } from './offscreen';
+import type { GrainSettings } from './renderer';
 
 export const TILE_SIZE = 2048;
 
 export interface TileOptions {
   lut: Lut | null;
   strength: number; // 0~1
+  /** cell은 source 픽셀 단위 */
+  grain?: GrainSettings;
   tileSize?: number;
   onProgress?: (done: number, total: number) => void;
 }
@@ -39,7 +42,8 @@ export async function renderTiled(
       const part = await createImageBitmap(source, sx, sy, sw, sh);
       renderer.setImage(part);
       part.close();
-      renderer.render(strength);
+      // 입자는 타일이 아닌 사진 좌표로 만들어 이음매가 생기지 않게 함
+      renderer.render({ strength, grain: opts.grain, offset: [sx, sy] });
       // 같은 작업 안에서 바로 옮겨 그려야 WebGL 버퍼가 비워지기 전에 읽힘
       ctx.drawImage(canvas, sx, sy);
       done++;

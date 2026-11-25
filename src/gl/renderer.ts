@@ -20,6 +20,20 @@ export interface Pixels {
   data: Uint8Array;
 }
 
+/** 입자 설정. amount 0~1(0이면 없음), cell은 이 렌더 타깃의 픽셀 단위 */
+export interface GrainSettings {
+  amount: number;
+  cell: number;
+}
+
+export interface RenderOptions {
+  strength: number; // 0~1
+  compare?: number; // 0~1
+  grain?: GrainSettings;
+  /** 타일 렌더링에서 이 타일의 왼쪽 위가 전체 사진에서 놓이는 위치(픽셀) */
+  offset?: [number, number];
+}
+
 export class Renderer {
   private readonly gl: WebGL2RenderingContext;
   private readonly program: WebGLProgram;
@@ -28,8 +42,11 @@ export class Renderer {
   private readonly uStrength: WebGLUniformLocation | null;
   private readonly uLutSize: WebGLUniformLocation | null;
   private readonly uCompare: WebGLUniformLocation | null;
-  private strength = 0;
-  private compare = 0;
+  private readonly uGrain: WebGLUniformLocation | null;
+  private readonly uGrainCell: WebGLUniformLocation | null;
+  private readonly uOffset: WebGLUniformLocation | null;
+  private readonly uHeight: WebGLUniformLocation | null;
+  private last: RenderOptions = { strength: 0 };
   private hasImage = false;
 
   /** WebGL2를 쓸 수 없으면 null. 썸네일·저장용으로 OffscreenCanvas도 받음 */
@@ -58,6 +75,10 @@ export class Renderer {
     this.uStrength = gl.getUniformLocation(program, 'u_strength');
     this.uLutSize = gl.getUniformLocation(program, 'u_lutSize');
     this.uCompare = gl.getUniformLocation(program, 'u_compare');
+    this.uGrain = gl.getUniformLocation(program, 'u_grain');
+    this.uGrainCell = gl.getUniformLocation(program, 'u_grainCell');
+    this.uOffset = gl.getUniformLocation(program, 'u_offset');
+    this.uHeight = gl.getUniformLocation(program, 'u_height');
 
     this.imageTex = this.createTexture(gl.TEXTURE_2D, 0);
     this.lutTex = this.createTexture(gl.TEXTURE_3D, 1);
@@ -110,23 +131,27 @@ export class Renderer {
     gl.uniform1f(this.uLutSize, lut.size);
   }
 
-  /** strength·compare는 0~1 */
-  render(strength: number, compare = 0): void {
+  render(opts: RenderOptions): void {
     if (!this.hasImage) return;
     const gl = this.gl;
-    this.strength = strength;
-    this.compare = compare;
+    this.last = opts;
+    const grain = opts.grain ?? { amount: 0, cell: 1 };
+    const [ox, oy] = opts.offset ?? [0, 0];
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.useProgram(this.program);
-    gl.uniform1f(this.uStrength, strength);
-    gl.uniform1f(this.uCompare, compare);
+    gl.uniform1f(this.uStrength, opts.strength);
+    gl.uniform1f(this.uCompare, opts.compare ?? 0);
+    gl.uniform1f(this.uGrain, grain.amount);
+    gl.uniform1f(this.uGrainCell, Math.max(1, grain.cell));
+    gl.uniform2f(this.uOffset, ox, oy);
+    gl.uniform1f(this.uHeight, gl.drawingBufferHeight);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
 
   /** 마지막 설정으로 다시 그린 뒤 픽셀을 읽음 (화면 표시 후 버퍼가 비워지므로) */
   readPixels(): Pixels {
     const gl = this.gl;
-    this.render(this.strength, this.compare);
+    this.render(this.last);
     const w = gl.drawingBufferWidth;
     const h = gl.drawingBufferHeight;
     const raw = new Uint8Array(w * h * 4);

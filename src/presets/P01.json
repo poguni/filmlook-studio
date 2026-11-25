@@ -1,0 +1,24 @@
+{
+  "code": "P01",
+  "name": "데일리",
+  "subtitle": "Provia에서 영감",
+  "toneCurve": [
+    [0, 0],
+    [0.25, 0.235],
+    [0.5, 0.5],
+    [0.75, 0.77],
+    [1, 1]
+  ],
+  "contrast": 5,
+  "saturation": 5,
+  "hsl": {
+    "blue": { "hue": 0, "sat": 5, "lum": 0 }
+  },
+  "whiteBalance": { "temp": 0, "tint": 0 },
+  "splitTone": {
+    "shadows": { "hue": 0, "sat": 0 },
+    "highlights": { "hue": 0, "sat": 0 }
+  },
+  "mono": null,
+  "defaultGrain": 0
+}
